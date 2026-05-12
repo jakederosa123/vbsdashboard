@@ -338,10 +338,10 @@
           <button class="btn btn-red btn-full" id="resetBtn">Reset dashboard</button>
           <input id="importFile" class="hidden" type="file" accept=".json" />
         </div>
-        <p class="small">This file still saves locally as a backup, but it is now cloud-sync ready. To make collaborator edits appear automatically across devices, fill in the Firebase settings near the bottom of this HTML file, set <span class="code-chip">FIREBASE_SYNC_ENABLED</span> to <span class="code-chip">true</span>, then host the file on Netlify, Vercel, GitHub Pages, WordPress, or another static host. RPubs can display a static version, but it should not be your shared editing host.</p>
+        <p class="small">This file saves locally as a backup and syncs to Firebase for shared editing. If edits do not persist after refresh, check Firestore rules and confirm this deployed file is named <span class="code-chip">index.html</span> in your Netlify/GitHub project.</p>
         <div class="card cloud-status-card" style="margin-top:12px;">
           <span class="pill pill-blue">Live Collaboration Status</span>
-          <div id="cloudSyncStatus" class="stack-list" style="margin-top:10px;"><div class="stack-item"><strong>Local only right now</strong><span>Firebase is disabled until you paste your project config into the HTML.</span></div></div>
+          <div id="cloudSyncStatus" class="stack-list" style="margin-top:10px;"><div class="stack-item"><strong>Firebase sync enabled</strong><span>Connecting to Firestore. Make a change, wait for Saved + synced, then refresh to test.</span></div></div>
         </div>
       </div>
       </div></section>
@@ -1455,7 +1455,7 @@
       1. Create a Firebase project.
       2. Create a Cloud Firestore database.
       3. Copy your Web App Firebase config below.
-      4. Change FIREBASE_SYNC_ENABLED from false to true.
+      4. FIREBASE_SYNC_ENABLED is already true in this file.
       5. Publish this HTML file on Netlify, Vercel, GitHub Pages, WordPress, or another static host.
 
       Important: configure Firestore rules before sharing the link publicly.

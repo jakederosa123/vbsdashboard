@@ -1,0 +1,18 @@
+Put index.html in this folder on your computer:
+
+/Users/jake/Documents/GitHub/vbsdashboard
+
+It should replace your current root index.html.
+
+Then run:
+
+cd /Users/jake/Documents/GitHub/vbsdashboard
+git add index.html
+git commit -m "Turn on Firebase autosave in index"
+git push
+
+After Netlify redeploys, open https://vbsdashboard.netlify.app, make a small change, wait for "Saved + synced" or "Synced", then refresh the page.
+
+Firebase is already enabled in this index.html with:
+FIREBASE_SYNC_ENABLED = true
+projectId = vbsdash-43f18
