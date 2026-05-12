@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOUSE Kids VBS Command Center, Cloud Sync Ready</title>
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --surface: #ffffff;
+      --surface-soft: #fffaf1;
+      --text: #282425;
+      --muted: #6f6860;
+      --line: #e7dccb;
+      --green: #1eb98f;
+      --green-dark: #0f7f66;
+      --blue: #39aee4;
+      --pink: #f45f9a;
+      --orange: #f27935;
+      --red: #df4b3f;
+      --yellow: #f5c84b;
+      --purple: #8173f6;
+      --cream: #fff5e2;
+      --shadow: 0 18px 46px rgba(40, 36, 37, 0.09);
+      --shadow-soft: 0 10px 28px rgba(40, 36, 37, 0.06);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --topbar: 78px;
+      --sidebar: 320px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(57, 174, 228, 0.13), transparent 35rem),
+        radial-gradient(circle at top right, rgba(244, 95, 154, 0.13), transparent 33rem),
+        var(--bg);
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: var(--topbar);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 12px 22px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 8px 26px rgba(40, 36, 37, 0.06);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 255px; }
+    .brand-mark { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; background: var(--green); color: #fff; font-weight: 900; }
+    .brand h1 { margin: 0; font-size: 1.08rem; line-height: 1; }
+    .brand span { display: block; margin-top: 4px; color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+    .topnav { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .nav-btn, .chip-btn, .mini-btn, .tab-btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      padding: 9px 12px;
+      font-weight: 800;
+      font-size: 0.86rem;
+    }
+    .nav-btn.active, .nav-btn:hover, .tab-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+    .top-actions { display: flex; align-items: center; gap: 9px; min-width: 170px; justify-content: flex-end; }
+    .save-status { color: var(--green-dark); font-size: 0.84rem; font-weight: 900; }
+    .layout { display: grid; grid-template-columns: var(--sidebar) 1fr; padding-top: var(--topbar); min-height: 100vh; }
+    .sidebar { position: sticky; top: var(--topbar); height: calc(100vh - var(--topbar)); overflow: auto; padding: 22px 18px; border-right: 1px solid var(--line); background: rgba(255,255,255,0.82); backdrop-filter: blur(12px); }
+    .main { padding: 26px; min-width: 0; }
+    .sidebar-card, .panel, .card, .stat, .modal-card { background: rgba(255,255,255,0.94); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-soft); }
+    .sidebar-card { padding: 16px; margin-bottom: 16px; }
+    .sidebar-card h3, .panel h3, .card h4 { margin: 0 0 12px; }
+    .field { margin-bottom: 12px; }
+    label { display: block; margin: 0 0 6px; color: var(--muted); font-size: 0.81rem; font-weight: 900; letter-spacing: 0.02em; }
+    input, textarea, select { width: 100%; border: 1px solid var(--line); border-radius: 13px; padding: 10px 11px; background: #fff; color: var(--text); }
+    textarea { min-height: 90px; resize: vertical; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .toolbar { display: grid; gap: 9px; }
+    .btn { border: 0; border-radius: 13px; padding: 11px 13px; font-weight: 900; color: #fff; background: var(--green); box-shadow: var(--shadow-soft); }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-light { background: #fff; color: var(--text); border: 1px solid var(--line); box-shadow: none; }
+    .btn-blue { background: var(--blue); }
+    .btn-pink { background: var(--pink); }
+    .btn-orange { background: var(--orange); }
+    .btn-red { background: var(--red); }
+    .btn-dark { background: var(--text); }
+    .btn-full { width: 100%; }
+    .hero { background: linear-gradient(135deg, var(--green), #31c7a1); color: #fff; border-radius: var(--radius-lg); padding: 18px 22px; box-shadow: var(--shadow-soft); margin-bottom: 18px; }
+    .hero .eyebrow { color: rgba(255,255,255,0.88); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 900; font-size: 0.78rem; }
+    .hero h2 { margin: 6px 0; font-size: clamp(1.35rem, 3vw, 2.15rem); line-height: 1.05; letter-spacing: -0.03em; }
+    .hero p { margin: 0; max-width: 920px; line-height: 1.45; font-size: 0.95rem; color: rgba(255,255,255,0.94); }
+    .hero-actions, .inline-actions, .tabs, .footer-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .panel { padding: 22px; margin-bottom: 22px; }
+    .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+    .section-head h3 { font-size: 1.2rem; }
+    .section-head p, .small, .meta { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
+    .stats, .grid-2, .grid-3, .grid-4, .search-layout { display: grid; gap: 16px; }
+    .stats { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-bottom: 18px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .search-layout { grid-template-columns: 320px 1fr; }
+    .stat { padding: 18px; border-top: 7px solid var(--green); }
+    .stat:nth-child(2) { border-top-color: var(--blue); }
+    .stat:nth-child(3) { border-top-color: var(--pink); }
+    .stat:nth-child(4) { border-top-color: var(--orange); }
+    .stat:nth-child(5) { border-top-color: var(--yellow); }
+    .stat:nth-child(6) { border-top-color: var(--purple); }
+    .stat-label { color: var(--muted); font-size: 0.78rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
+    .stat-value { font-size: 2rem; font-weight: 950; margin-top: 8px; }
+    .card { padding: 18px; }
+    .pill, .day-tag { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 900; margin: 0 6px 8px 0; }
+    .pill-green { background: rgba(30,185,143,0.15); color: var(--green-dark); }
+    .pill-blue { background: rgba(57,174,228,0.16); color: #126586; }
+    .pill-pink { background: rgba(244,95,154,0.16); color: #96335c; }
+    .pill-orange { background: rgba(242,121,53,0.16); color: #93430d; }
+    .pill-red { background: rgba(223,75,63,0.16); color: #96342d; }
+    .pill-purple { background: rgba(129,115,246,0.16); color: #4b3fb2; }
+    .stack-list, .name-list, .search-results, .schedule-list, .station-tabs, .page-tabs { display: grid; gap: 10px; }
+    .stack-item { border: 1px solid var(--line); border-radius: 15px; background: #fff; padding: 11px; }
+    .stack-item strong { display: block; margin-bottom: 4px; }
+    .stack-item span { display: block; color: var(--muted); font-size: 0.84rem; line-height: 1.35; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; min-width: 850px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: 11px; }
+    th { position: sticky; top: 0; background: #fffaf1; color: var(--muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; z-index: 2; }
+    .timeline-controls { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .timeline-shell { overflow: auto; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    .timeline-grid { display: grid; min-width: 1060px; }
+    .timeline-corner, .timeline-time, .timeline-room, .timeline-cell { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-height: 76px; }
+    .timeline-corner, .timeline-time { position: sticky; top: 0; background: #fffaf1; z-index: 3; padding: 12px; font-weight: 900; }
+    .timeline-corner, .timeline-room { position: sticky; left: 0; z-index: 4; background: #fffaf1; }
+    .timeline-room { padding: 12px; font-weight: 900; }
+    .timeline-cell { background: #fff; padding: 8px; cursor: pointer; }
+    .timeline-cell:hover { background: #fff7e8; }
+    .timeline-block { height: 100%; border-radius: 12px; background: #dcb36b; color: #2f261f; padding: 9px; font-weight: 900; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); }
+    .timeline-block small { display: block; margin-top: 4px; font-weight: 700; font-size: 0.75rem; opacity: 0.82; }
+    .coverage-ok { color: var(--green-dark); font-weight: 900; }
+    .coverage-warn { color: var(--red); font-weight: 900; }
+    .progress-row { display: grid; gap: 8px; margin-bottom: 12px; }
+    .bar-meta { display: flex; justify-content: space-between; font-weight: 900; }
+    .bar-track { height: 22px; border-radius: 999px; background: #edf1e8; overflow: hidden; border: 1px solid var(--line); }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), #86c45d); border-radius: 999px; width: 0%; }
+    .bar-fill.alt { background: linear-gradient(90deg, var(--orange), var(--yellow)); }
+    .modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(36, 30, 24, 0.48); padding: 18px; z-index: 2000; }
+    .modal-backdrop.active { display: flex; }
+    .modal-card { width: min(860px, 100%); max-height: 88vh; overflow: auto; padding: 24px; }
+    .hidden { display: none !important; }
+    .color-swatch { display:inline-block; width:12px; height:12px; border-radius:999px; margin-right:6px; border:1px solid rgba(0,0,0,.15); vertical-align:middle; }
+    .click-card { cursor: pointer; transition: transform .12s ease, box-shadow .12s ease; }
+    .click-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .mini-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; margin-top:10px; }
+    .compact-list { display:grid; gap:6px; margin-top:10px; }
+    .compact-list span { display:block; padding:7px 9px; border:1px solid var(--line); border-radius:10px; background:#fffaf1; color:var(--muted); font-size:.84rem; }
+
+    .jira-frame { width:100%; min-height:680px; border:1px solid var(--line); border-radius:18px; background:#fff; }
+    .row-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .roster-table input, .roster-table select { min-width: 100px; padding: 8px 9px; border-radius: 10px; }
+    .roster-table .name-input { min-width: 160px; }
+    .roster-actions { display:flex; flex-wrap:wrap; gap:6px; min-width:180px; }
+    .empty-state-card { padding:18px; border:1px dashed var(--line); border-radius:18px; background:#fffaf1; color:var(--muted); }
+    @media (max-width: 1220px) {
+      .layout { grid-template-columns: 1fr; padding-top: 132px; }
+      .sidebar { position: relative; top: 0; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+      .topbar { height: auto; flex-wrap: wrap; align-items: flex-start; }
+      .stats, .grid-2, .grid-3, .grid-4, .search-layout, .form-grid, .timeline-controls { grid-template-columns: 1fr; }
+      .brand { min-width: 0; }
+    }
+
+    /* Cleaner side navigation layout */
+    :root { --topbar: 70px; --sidebar: 292px; }
+    .topbar { height: var(--topbar); justify-content: space-between; }
+    .top-actions { min-width: 150px; }
+    .side-nav { display: grid; gap: 8px; }
+    .side-nav .nav-btn { width: 100%; text-align: left; border-radius: 14px; padding: 11px 12px; background: #fff; }
+    .side-nav .nav-btn.active, .side-nav .nav-btn:hover { background: var(--green); color: #fff; border-color: var(--green); }
+    .sidebar-nav-card { position: sticky; top: 0; z-index: 10; }
+    .overview-control-panel .card { box-shadow: none; }
+    @media (max-width: 1220px) {
+      .layout { padding-top: var(--topbar); }
+      .sidebar { position: relative; top: 0; height: auto; }
+      .side-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .side-nav .nav-btn { text-align: center; }
+    }
+    @media (max-width: 760px) { .side-nav { grid-template-columns: 1fr; } }
+
+
+    /* Snapshot card fix: keeps first-page summary items from stretching into the Rooms column */
+    .snapshot-grid {
+      grid-template-columns: minmax(210px, 0.72fr) minmax(270px, 1fr) minmax(270px, 1fr);
+      align-items: start;
+    }
+    .snapshot-grid .card { min-width: 0; overflow: hidden; }
+    #overviewSummary.stack-list { align-items: flex-start; }
+    #overviewSummary .stack-item {
+      width: 100%;
+      max-width: 330px;
+      padding: 10px 12px;
+      line-height: 1.25;
+    }
+    #overviewSummary .stack-item strong,
+    #overviewSummary .stack-item span,
+    #overviewSummary .stack-item a {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    @media (max-width: 1220px) {
+      .snapshot-grid { grid-template-columns: 1fr; }
+      #overviewSummary .stack-item { max-width: none; }
+    }
+    .cloud-status-card { border-left: 7px solid var(--blue); }
+    .code-chip { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background:#fffaf1; border:1px solid var(--line); border-radius:10px; padding:2px 6px; }
+
+    @media print {
+      .topbar, .sidebar, .hero-actions, .toolbar, .inline-actions, .section-head .btn, .mini-btn, .footer-actions { display: none !important; }
+      .layout { display: block; padding-top: 0; }
+      .main { padding: 0; }
+      .view { display: block !important; }
+      .panel, .card, .stat, .hero { box-shadow: none; break-inside: avoid; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">HK</div><div><h1>HOUSE Kids VBS</h1><span>Planning dashboard</span></div></div>
+    <div class="top-actions"><span class="save-status" id="saveStatus">Ready</span><button class="mini-btn" id="quickSaveBtn">Save</button></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-card sidebar-nav-card">
+        <h3>VBS Menu</h3>
+        <nav class="side-nav">
+      <button class="nav-btn active" data-view="overviewView">Overview</button>
+      <button class="nav-btn" data-view="registrationView">Registration</button>
+      <button class="nav-btn" data-view="timelineView">Schedule Grid</button>
+      <button class="nav-btn" data-view="roomsView">Rooms</button>
+      <button class="nav-btn" data-view="groupsView">Groups</button>
+      <button class="nav-btn" data-view="volunteersView">Volunteers</button>
+      <button class="nav-btn" data-view="volunteerInterestView">Volunteer Interest</button>
+      <button class="nav-btn" data-view="stationsView">Stations</button>
+      <button class="nav-btn" data-view="peopleView">Person Lookup</button>
+      <button class="nav-btn" data-view="pagesView">Pages</button>
+      <button class="nav-btn" data-view="toolsView">Tools & Exports</button>
+      <button class="nav-btn board-btn" type="button" id="planningBoardBtn">Planning Board</button>
+      <button class="nav-btn" data-view="versionView">Versions</button>
+    </nav>
+      </div>
+      <div class="sidebar-card"><h3>Planning Pages</h3><div class="stack-list" id="sidebarPages"></div></div>
+    </aside>
+
+    <main class="main">
+      <section id="overviewView" class="view active">
+        <section class="hero" id="overviewHero">
+          <div class="eyebrow">Overview</div>
+          <h2 id="heroTitle">HOUSE Kids VBS</h2>
+          <p>Planning hub for registration, room design, stations, volunteers, animal/color groups, daily assignments, the schedule grid, Day 4 BBQ planning, person lookup, planning pages, and rollback history.</p>
+        </section>
+        <div class="stats" id="statsBar"></div>
+        <div class="panel overview-control-panel">
+          <div class="section-head"><div><h3>Main Overview Setup</h3><p>Use this area for the core event settings. The detailed tools have moved to the Tools & Exports page so the dashboard stays clean.</p></div></div>
+          <div class="grid-2">
+            <div class="card">
+        <span class="pill pill-green">Event Setup</span>
+        <div class="field"><label for="eventTitleInput">Event Title</label><input id="eventTitleInput" /></div>
+        <div class="form-grid"><div class="field"><label for="kidCountInput">Projected Kids</label><input id="kidCountInput" type="number" min="1" /></div><div class="field"><label for="kidsPerGroupInput">Kids Per Group</label><input id="kidsPerGroupInput" type="number" min="1" /></div></div>
+        <div class="form-grid"><div class="field"><label for="leadsPerGroupInput">Leads Per Group</label><input id="leadsPerGroupInput" type="number" min="0" /></div><div class="field"><label for="supportPerGroupInput">Supports Per Group</label><input id="supportPerGroupInput" type="number" min="0" /></div></div>
+        <div class="field"><label for="teamPrefixInput">Group Name Prefix</label><input id="teamPrefixInput" /></div>
+        <div class="field"><label for="editorNameInput">Your Name</label><input id="editorNameInput" placeholder="Jake, coordinator, volunteer lead" /></div>
+        <div class="field"><label for="jeraUrlInput">Planning Board Link</label><input id="jeraUrlInput" placeholder="Paste your planning board link here" /></div>
+      </div>
+      
+            <div class="card">
+              <span class="pill pill-blue">Registration Dashboard</span>
+              <p class="small">Upload the VBS registration CSV and HOUSE families CSV from the Registration page. The merge now reads the files immediately, shows errors if a file cannot be read, and updates the roster table as soon as the merge finishes.</p>
+              <div id="overviewRegistrationMini" class="stack-list" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel"><div class="section-head"><div><h3>Planning Snapshot</h3><p>Your current VBS plan, registration status, staffing load, and setup notes.</p></div></div><div class="grid-3 snapshot-grid"><div class="card"><span class="pill pill-green">Summary</span><div id="overviewSummary" class="stack-list"></div></div><div class="card"><span class="pill pill-blue">Rooms</span><div id="roomSnapshot" class="stack-list"></div></div><div class="card"><span class="pill pill-pink">Next Actions</span><div id="actionList" class="stack-list"></div></div></div></div>
+      </section>
+
+      <section id="registrationView" class="view">
+        <div class="panel"><div class="section-head"><div><h3>Registration Dashboard</h3><p>Upload the VBS registration CSV and HOUSE families CSV. The roster merges by name and birthdate when possible. Registered kids can be pushed into the group planner.</p></div></div>
+          <div class="grid-2">
+            <div class="card"><span class="pill pill-green">VBS CSV</span><div class="field"><label for="vbsFile">Upload VBS Registration CSV</label><input id="vbsFile" type="file" accept=".csv" /></div><p class="small">Expected fields can include First Name, Last Name, Age, Birthdate, Home Email Address, and Mobile Phone Number.</p></div>
+            <div class="card"><span class="pill pill-blue">Families CSV</span><div class="field"><label for="familiesFile">Upload HOUSE Families CSV</label><input id="familiesFile" type="file" accept=".csv" /></div><p class="small">Expected fields can include First Name, Last Name, Birthdate, Home Email, Mobile Phone Number, Household Name, and Child.</p></div>
+          </div>
+          <div class="inline-actions"><button class="btn" id="runRegistrationBtn">Run registration merge</button><button class="btn btn-blue" id="syncRegisteredKidsBtn">Use registered kids for groups</button><button class="btn btn-light" id="downloadRosterBtn">Download merged roster CSV</button></div>
+          <p class="small" id="registrationStatus">No registration files loaded yet.</p>
+        </div>
+        <div class="stats" id="registrationStats"></div>
+        <div class="panel"><div class="section-head"><div><h3>Roster Filters and Viewer</h3><p>Filter by age, status, and search term. Changes here do not erase the roster.</p></div></div>
+          <div class="grid-4"><div class="field"><label for="minAgeInput">Minimum Age</label><input id="minAgeInput" type="number" value="2" /></div><div class="field"><label for="maxAgeInput">Maximum Age</label><input id="maxAgeInput" type="number" value="12" /></div><div class="field"><label for="registrationStatusFilter">VBS Status</label><select id="registrationStatusFilter"><option value="All">All</option><option value="Yes">Registered</option><option value="No">Not Registered</option></select></div><div class="field"><label for="registrationSearchInput">Search</label><input id="registrationSearchInput" placeholder="Search name, family, email, phone" /></div></div>
+          <div class="grid-2"><div class="card"><span class="pill pill-green">Registration Breakdown</span><div id="registrationBars"></div></div><div class="card"><span class="pill pill-purple">Source Breakdown</span><div id="sourceBars"></div></div></div>
+          <div class="table-wrap" style="margin-top:16px;"><table class="roster-table"><thead><tr><th>Family</th><th>Name</th><th>VBS</th><th>Age</th><th>Email</th><th>Phone</th><th>In Families CSV</th><th>In VBS CSV</th><th>Actions</th></tr></thead><tbody id="rosterBody"><tr><td colspan="8">No data loaded yet.</td></tr></tbody></table></div>
+        </div>
+      </section>
+
+      <section id="timelineView" class="view">
+        <div class="panel"><div class="section-head"><div><h3>Time Blocks and Room Blocks</h3><p>Rooms are on the side and time runs across the top. The grid cell stays simple with room, time, and activity. Click a block to edit start/end time, details, volunteers, groups, and station notes.</p></div><button class="btn btn-dark" id="addRoomBtn">Add room</button></div><div class="timeline-controls"><div class="field"><label for="scheduleDayInput">Schedule Day</label><select id="scheduleDayInput"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option></select></div><div class="field"><label for="scheduleStartInput">Start Time</label><input id="scheduleStartInput" type="time" /></div><div class="field"><label for="scheduleEndInput">End Time</label><input id="scheduleEndInput" type="time" /></div><div class="field"><label for="scheduleIntervalInput">Block Size</label><select id="scheduleIntervalInput"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></div><div class="field"><label for="scheduleTimezoneInput">Time Zone</label><input id="scheduleTimezoneInput" placeholder="America/Denver" /></div></div><div class="timeline-shell"><div id="timelineGrid" class="timeline-grid"></div></div></div>
+      </section>
+
+      <section id="roomsView" class="view"><div class="panel"><div class="section-head"><div><h3>Rooms</h3><p>Add or edit rooms. Each room appears automatically on the schedule grid.</p></div><button class="btn" id="addRoomBtn2">Add room</button></div><div class="grid-2" id="roomCards"></div></div></section>
+      <section id="groupsView" class="view"><div class="panel"><div class="section-head"><div><h3>Groups</h3><p>Animal and color groups are assigned by age/grade. If a group gets too large, the sync tool automatically creates A/B groups for that animal color.</p></div><button class="btn" id="syncRegisteredKidsBtn2">Rebuild groups from registration</button></div><div class="card" style="margin-bottom:16px;"><span class="pill pill-green">Final Groups Overview</span><div id="ageGroupGuide" class="stack-list"></div><p class="small">Contingency plan: if registration grows, split younger groups first, then older groups as needed. Depending on age registration, we may need multiple groups per age band. Each group should have its animal/color sign and a designated sanctuary meeting spot for morning gathering and pickup.</p></div><div class="grid-3" id="groupCards"></div></div></section>
+      <section id="volunteersView" class="view"><div class="panel"><div class="section-head"><div><h3>Volunteer Directory</h3><p>Shows each volunteer and every assignment that uses their name.</p></div></div><div class="table-wrap"><table><thead><tr><th>Volunteer</th><th>Days Working</th><th>Assignments</th></tr></thead><tbody id="volunteerDirectoryBody"></tbody></table></div></div></section>
+      <section id="volunteerInterestView" class="view"><div class="panel"><div class="section-head"><div><h3>Volunteer Interest Pipeline</h3><p>Upload your volunteer CSV, track people who might serve, and move them into group or station spots. Uploaded volunteers are preserved and merged by name, so they do not disappear when the dashboard refreshes.</p></div><button class="btn" id="addVolunteerInterestBtn">Add person</button></div><div class="grid-2"><div class="card"><span class="pill pill-green">Volunteer CSV</span><div class="field"><label for="volunteerCsvFile">Upload Volunteer CSV</label><input id="volunteerCsvFile" type="file" accept=".csv,.tsv,.txt" /></div><p class="small" id="volunteerUploadStatus">No volunteer CSV uploaded yet. Expected fields can include Name, Date of Last Contact, Commitment, Notes, and Followup Needed.</p></div><div class="card"><span class="pill pill-orange">How this works</span><p class="small">Uploaded volunteers are added to the interest pipeline without deleting existing names. Matching is based on normalized volunteer name.</p></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Name</th><th>Contact</th><th>Commitment</th><th>Status</th><th>Available Days</th><th>Move Into</th><th>Actions</th></tr></thead><tbody id="volunteerInterestBody"></tbody></table></div></div></section>
+      <section id="stationsView" class="view"><div class="panel"><div class="section-head"><div><h3>Stations</h3><p>Each station has its own tab, staffing counts, and day-by-day lead/support lists.</p></div><button class="btn" id="addStationBtn">Add station</button></div><div class="grid-3" id="stationCards"></div><div id="stationTabs" class="hidden"></div><div id="stationPanels" class="hidden"></div></div></section>
+      <section id="peopleView" class="view"><div class="panel"><div class="section-head"><div><h3>Person Lookup</h3><p>Search a kid, registered child, or volunteer and open their schedule and assignments.</p></div></div><div class="search-layout"><div class="card"><div class="field"><label for="personSearch">Search name</label><input id="personSearch" placeholder="Type a person name" /></div><div id="personSearchResults" class="search-results"></div></div><div class="card"><div id="personEmptyState" class="meta">Select a person to see their schedule.</div><div id="personResult"></div></div></div></div></section>
+      <section id="pagesView" class="view"><div class="panel"><div class="section-head"><div><h3>Side Planning Pages</h3><p>Create extra pages for curriculum, supplies, parent communication, volunteer training, budgets, or anything else you are building.</p></div><button class="btn" id="addPageBtn2">Add page</button></div><div class="page-tabs" id="pageTabs"></div><div id="pagePanels"></div></div></section>
+      <section id="toolsView" class="view"><div class="panel"><div class="section-head"><div><h3>Tools & Exports</h3><p>Exports, rollback checkpoints, printing, imports, and reset controls live here so the main menu stays clean.</p></div></div><div class="card">
+        <span class="pill pill-purple">Website Tools</span>
+        <div class="toolbar">
+          <button class="btn btn-full" id="saveBtn">Save now</button>
+          <button class="btn btn-blue btn-full" id="copyMondayBtn">Copy Monday to all days</button>
+          <button class="btn btn-pink btn-full" id="addPageBtn">Add planning page</button>
+          <button class="btn btn-light btn-full" id="exportJsonBtn">Export data JSON</button>
+          <button class="btn btn-light btn-full" id="exportCsvBtn">Export CSV files</button>
+          <button class="btn btn-light btn-full" id="exportHtmlBtn">Export saved website file</button>
+          <button class="btn btn-light btn-full" id="checkpointBtn">Create version checkpoint</button>
+          <button class="btn btn-light btn-full" id="exportHistoryBtn">Export version history</button>
+          <button class="btn btn-light btn-full" id="openJeraBtn">Open Planning Board</button>
+          <button class="btn btn-light btn-full" id="printBtn">Print / Save PDF</button>
+          <button class="btn btn-light btn-full" id="importBtn">Import JSON</button>
+          <button class="btn btn-red btn-full" id="resetBtn">Reset dashboard</button>
+          <input id="importFile" class="hidden" type="file" accept=".json" />
+        </div>
+        <p class="small">This file still saves locally as a backup, but it is now cloud-sync ready. To make collaborator edits appear automatically across devices, fill in the Firebase settings near the bottom of this HTML file, set <span class="code-chip">FIREBASE_SYNC_ENABLED</span> to <span class="code-chip">true</span>, then host the file on Netlify, Vercel, GitHub Pages, WordPress, or another static host. RPubs can display a static version, but it should not be your shared editing host.</p>
+        <div class="card cloud-status-card" style="margin-top:12px;">
+          <span class="pill pill-blue">Live Collaboration Status</span>
+          <div id="cloudSyncStatus" class="stack-list" style="margin-top:10px;"><div class="stack-item"><strong>Local only right now</strong><span>Firebase is disabled until you paste your project config into the HTML.</span></div></div>
+        </div>
+      </div>
+      </div></section>
+      <section id="jiraView" class="view hidden"></section>
+      <section id="versionView" class="view">
+        <div class="panel"><div class="section-head"><div><h3>Version Control and Change Log</h3><p>Every save can create a checkpoint. Use this page to review changes, export history, or restore an earlier version.</p></div><button class="btn" id="checkpointBtn2">Create checkpoint</button></div>
+          <div class="grid-2">
+            <div class="card"><span class="pill pill-green">Current Sync Setup</span><div id="syncSetupSummary" class="stack-list"></div></div>
+            <div class="card"><span class="pill pill-blue">Collaboration Note</span><p class="small">Local version control works in this browser as a backup. Once Firebase is enabled, edits save to the shared Firestore document and other open browsers receive updates automatically.</p></div>
+          </div>
+        </div>
+        <div class="panel"><div class="section-head"><div><h3>Saved Versions</h3><p>Newest checkpoints are listed first. Restoring a version replaces the current plan but keeps the history.</p></div></div><div id="versionList" class="stack-list"></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="blockModal"><div class="modal-card"><div class="section-head"><div><h3>Edit Schedule Block</h3><p>Edit the room, start time, end time, and basic activity details for this block.</p></div><button class="mini-btn" onclick="closeBlockModal()">Close</button></div><input type="hidden" id="modalOriginalRoomId" /><input type="hidden" id="modalOriginalTime" /><div class="field"><label for="modalRoomSelect">Room</label><select id="modalRoomSelect"></select></div><div class="form-grid"><div class="field"><label for="modalStartTime">Start Time</label><input id="modalStartTime" type="time" /></div><div class="field"><label for="modalEndTime">End Time</label><input id="modalEndTime" type="time" /></div></div><div class="field"><label>Activity</label><input id="modalActivity" placeholder="Opening, worship, crafts, games" /></div><div class="field"><label>Notes</label><textarea id="modalNotes" placeholder="Optional setup notes for this room and time"></textarea></div><div class="inline-actions"><button class="btn" onclick="saveBlockModal()">Save block</button><button class="btn btn-light" onclick="clearBlockModal()">Clear block</button></div></div></div>
+
+
+  <div class="modal-backdrop" id="groupModal"><div class="modal-card"><div class="section-head"><div><h3>Edit Group</h3><p>Update age cutoffs, animal/color information, kids, and day-by-day group volunteers.</p></div><button class="mini-btn" onclick="closeGroupModal()">Close</button></div><input type="hidden" id="groupModalIndex" />
+    <div class="form-grid"><div class="field"><label>Group Name</label><input id="groupModalName" /></div><div class="field"><label>Animal</label><input id="groupModalAnimal" /></div><div class="field"><label>Color</label><input id="groupModalColor" /></div><div class="field"><label>Color Hex</label><input id="groupModalColorHex" placeholder="#8bdc65" /></div><div class="field"><label>Minimum Age</label><input id="groupModalMinAge" type="number" step="1" /></div><div class="field"><label>Maximum Age</label><input id="groupModalMaxAge" type="number" step="1" /></div></div>
+    <div class="field"><label>Age Band / Hard Cutoff Note</label><input id="groupModalAgeBand" placeholder="Example: 3 yrs, potty trained" /></div>
+    <div class="field"><label>Kids in Group</label><textarea id="groupModalKids" placeholder="One kid per line. You can write: Name, age"></textarea></div>
+    <div id="groupModalDays"></div>
+    <div class="inline-actions"><button class="btn" onclick="saveGroupModal()">Save group</button><button class="btn btn-light" onclick="closeGroupModal()">Cancel</button></div>
+  </div></div>
+
+  <div class="modal-backdrop" id="stationModal"><div class="modal-card"><div class="section-head"><div><h3>Edit Station</h3><p>Update station name, staffing targets, and day-by-day volunteers.</p></div><button class="mini-btn" onclick="closeStationModal()">Close</button></div><input type="hidden" id="stationModalIndex" />
+    <div class="form-grid"><div class="field"><label>Station Name</label><input id="stationModalName" /></div><div class="field"><label>Lead Count</label><input id="stationModalLead" type="number" min="0" /></div><div class="field"><label>Support Count</label><input id="stationModalSupport" type="number" min="0" /></div></div>
+    <div id="stationModalDays"></div>
+    <div class="inline-actions"><button class="btn" onclick="saveStationModal()">Save station</button><button class="btn btn-light" onclick="closeStationModal()">Cancel</button></div>
+  </div></div>
+
+  <script>
+    const STORAGE_KEY = 'house_kids_vbs_command_center_combined_final_v6';
+    const LEGACY_STORAGE_KEY = 'house_kids_vbs_integrated_v2';
+    const LEGACY_STORAGE_KEY_V3 = 'house_kids_vbs_integrated_v3';
+    const HISTORY_KEY = 'house_kids_vbs_version_history_v1';
+    const EDITOR_KEY = 'house_kids_vbs_editor_name';
+    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+    const DEFAULT_DATA = {
+      eventTitle: 'HOUSE Kids VBS Command Center', kidCount: 50, kidsPerGroup: 5, leadsPerGroup: 1, supportPerGroup: 1, teamPrefix: 'Group', editorName: '', jeraUrl: '', activeStationId: 'worship', activePageId: 'day-4-fun-day', selectedPersonKey: null, activeScheduleDay: 'Monday',
+      scheduleSettings: { start: '08:00', end: '13:00', interval: 30, timezone: 'America/Denver' },
+      registration: { vbsRows: [], familyRows: [], roster: [], filters: { minAge: 2, maxAge: 12, status: 'All', search: '' } },
+      groups: [],
+      stations: [
+        { id: 'worship', name: 'Worship & Dance: Jungle Jam', lead: 3, support: 0, days: {} },
+        { id: 'bible', name: 'Bible: Under the Waterfall', lead: 1, support: 1, days: {} },
+        { id: 'snack', name: 'Snack Shack', lead: 2, support: 2, days: {} },
+        { id: 'cave', name: 'Cave Room', lead: 1, support: 1, days: {} },
+        { id: 'memory', name: 'Memory Verse: Verse Vines', lead: 1, support: 0, days: {} },
+        { id: 'crafts', name: 'Crafts: Creation Station', lead: 1, support: 2, days: {} },
+        { id: 'games', name: 'Games: Wild About God Games', lead: 3, support: 2, days: {} },
+        { id: 'face-paint', name: 'Face Paint', lead: 2, support: 2, days: {} },
+        { id: 'bbq', name: 'Family BBQ', lead: 3, support: 4, days: {} }
+      ],
+      rooms: [
+        { id: 'sanctuary', name: 'Sanctuary', purpose: 'Station 1, Worship & Dance: Jungle Jam', notes: 'Transform into a rainforest environment. Add a large visual waterfall installation along the side of the stage. Move all chairs to the back of the room for the week so there is open space for worship, dance, movement, and group engagement. Add clear age-group and animal-color signage so every group knows its morning and pickup meeting spot.' },
+        { id: 'mpr-room', name: 'MPR Room', purpose: 'Station 2, Bible: Under the Waterfall', notes: 'Hallway entrance should feel like passing beneath flowing water using hanging tinsel foil curtains. Cover walls in blue paper. Decorate with sea animals, coral reef elements, rocks, fishing nets, and lesson-connected props. Goal: calm, captivating room where kids dive deeper into who God is and how His Word applies to their lives.' },
+        { id: 'kitchen-snack-shack', name: 'Kitchen + Outside Kitchen Area', purpose: 'Station 3, Snack Shack', notes: 'Use the kitchen and outdoor area directly outside for snacks and lunch. Keep decor simple: paper-lined walls with vines, flowers, and leaves. Add a covering above the kitchen windows so it feels like a tropical hut or snack stand.' },
+        { id: 'pre-k-cave-room', name: 'Pre-K Room', purpose: 'Station 4, Cave Room', notes: 'Cover walls fully in gray paper to mimic a cave interior. Add rock and boulder elements made from cardboard and paper. Use this room for a quieter station, younger kid reset space, or themed activity rotation.' },
+        { id: 'tots-room-verse-vines', name: 'Tots Room', purpose: 'Station 5, Memory Verse: Verse Vines', notes: 'Because the room already has animal wall paintings, keep added decor minimal. Add select wall or ceiling materials if needed. Use hanging vines, greenery, or ceiling elements for the Verse Vines theme.' },
+        { id: 'nursery-overflow', name: 'Nursery Room', purpose: '3-year-old hangout or overflow room', notes: 'Use as the 3-year-old hangout, potty-trained preschool support room, nap/reset room, or overflow space if group sizes require it.' },
+        { id: 'elementary-creation-station', name: 'Elementary Area', purpose: 'Station 6, Crafts: Creation Station', notes: 'Cover all walls except cabinets and doors with paper. Decorate with vines, flowers, leaves, and optional animal cutouts. Wrap the two pillars in brown paper to look like trees, with chain-linked greenery extending upward as canopy. Arrange tables and chairs in rows for structured craft work.' },
+        { id: 'outside-games', name: 'Outside Area', purpose: 'Station 7, Games: Wild About God Games', notes: 'No major decorations needed outside. Keep all games and props on theme. Use relays, team challenges, water games if weather allows, and free-choice activities for Day 4.' },
+        { id: 'briefing-room', name: 'Briefing Room', purpose: 'Station 8, Volunteer briefing, supplies, or floaters', notes: 'Use for volunteer check-in, coordinator briefing, extra supplies, prep materials, or floater staging. Can also serve as a quiet problem-solving room during transitions.' },
+        { id: 'face-paint-room', name: 'Face Paint Room', purpose: 'Day 4 face paint and quiet creative station', notes: 'Use washable, allergy-aware supplies, mirrors, wipes, water, and a simple design board. Keep line control clear. Offer a no-face-paint alternative.' },
+        { id: 'bbq-fellowship', name: 'BBQ / Fellowship Area', purpose: 'Family-style barbecue, lunch, parent connection, and pickup flow', notes: 'Use for setup, serving, seating, cleanup, and family welcome. Include allergy labels, trash cans, drink station, seating, and supervised games nearby.' }
+      ],
+      scheduleBlocks: {
+        'Monday|sanctuary|09:00': { activity: 'Opening', volunteers: 'Main leaders, hosts, volunteers', groupNotes: 'Whole group', notes: 'Welcome, prayer, instructions, kickoff.' },
+        'Monday|sanctuary|10:00': { activity: 'Worship and Dance', volunteers: 'Worship team, dance leaders', groupNotes: 'Whole group', notes: 'Music, motions, and worship rotation.' },
+        'Monday|sanctuary|10:30': { activity: 'Worship and Dance', volunteers: 'Worship team, dance leaders', groupNotes: 'Whole group', notes: 'Second worship and dance block.' },
+        'Monday|sanctuary|12:30': { activity: 'Closing', volunteers: 'Main leaders, volunteers', groupNotes: 'Whole group', notes: 'Recap, prayer, dismissal, and final worship.' },
+        'Thursday|sanctuary|09:00': { activity: 'Day 4 Fun Day Kickoff', volunteers: 'Main host, worship leader, coordinator, group leads', groupNotes: 'Whole group', notes: 'Explain the freestyle day, review safety boundaries, pray, then release groups into rotations.' },
+        'Thursday|outside-games|09:30': { activity: 'Freestyle Games Rotation', volunteers: 'Games station team, group leads', groupNotes: 'Draw from DBS day 4 and day 5 games. Whole group or age-band rotations.', notes: 'Use relay races, team challenges, parachute games, water games if weather allows, and free-choice station options.' },
+        'Thursday|face-paint-room|09:30': { activity: 'Face Paint Opens', volunteers: 'Face paint team, check-in helper', groupNotes: 'Small groups rotate through. Keep line short and use allergy-safe supplies.', notes: 'Set up mirrors, wipes, water, designs board, consent note, and a no-face-paint alternative.' },
+        'Thursday|elementary-creation-station|10:00': { activity: 'Freestyle Craft / Memory Keepsake', volunteers: 'Craft station team', groupNotes: 'Optional quiet station during fun day.', notes: 'Let kids make a take-home card, bracelet, or VBS memory craft.' },
+        'Thursday|sanctuary|10:30': { activity: 'Dance Party / Worship Games', volunteers: 'Worship team, dance leaders, group leads', groupNotes: 'Whole group', notes: 'High-energy music, worship motions, freeze dance, and recap of the week.' },
+        'Thursday|bbq-fellowship|10:30': { activity: 'BBQ Setup', volunteers: 'Food team, grill team, setup team', groupNotes: 'Adults only in food prep zone.', notes: 'Set tables, drinks, serving line, trash cans, food labels, allergy signs, and family seating.' },
+        'Thursday|bbq-fellowship|11:00': { activity: 'Family-Style BBQ Lunch', volunteers: 'Food team, group leads, hospitality team', groupNotes: 'Kids eat by age group or family unit as parents arrive.', notes: 'Serve lunch from 11:00 AM to 12:15 PM. Keep games open nearby for finished kids.' },
+        'Thursday|outside-games|11:30': { activity: 'Open Games After BBQ', volunteers: 'Games team, floaters, group leads', groupNotes: 'Kids who finish lunch can rotate through supervised games.', notes: 'Keep activities simple, visible, and easy to join or leave.' },
+        'Thursday|sanctuary|12:30': { activity: 'Closing Celebration and Pickup', volunteers: 'Main host, worship team, check-out team, group leads', groupNotes: 'Whole group and families', notes: 'Thank volunteers, invite families to Sunday, quick recap, final prayer, and organized pickup.' }
+      },
+      volunteerInterest: [
+        {
+                "id": "interest-anna-raynes",
+                "name": "Anna Raynes",
+                "lastContact": "4/19/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-brandon-cheun",
+                "name": "Brandon Cheun",
+                "lastContact": "4/19/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-ellie-clifford",
+                "name": "Ellie Clifford",
+                "lastContact": "4/19/2026",
+                "commitment": "",
+                "notes": "Set-up",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-raymond-phillips",
+                "name": "Raymond Phillips",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-danielle-car",
+                "name": "Danielle Car",
+                "lastContact": "",
+                "commitment": "Full comittement",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-glory-clark",
+                "name": "Glory Clark",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-hadassah-russel",
+                "name": "Hadassah Russel",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-eva-kim",
+                "name": "Eva Kim",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-talia",
+                "name": "Talia",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-scarlet-kim",
+                "name": "Scarlet Kim",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-kimbery",
+                "name": "Kimbery",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-mikaila",
+                "name": "Mikaila",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-ben",
+                "name": "Ben",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-kendra",
+                "name": "Kendra",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-kathy-lugo",
+                "name": "Kathy Lugo",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-stacy-grein",
+                "name": "Stacy Grein",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-mya-russell",
+                "name": "Mya Russell",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-evelyn-odnoralof",
+                "name": "Evelyn Odnoralof",
+                "lastContact": "5/5/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-grace-glu",
+                "name": "Grace Glu.",
+                "lastContact": "5/5/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-robin",
+                "name": "Robin",
+                "lastContact": "4/21/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-rick",
+                "name": "Rick",
+                "lastContact": "4/21/2026",
+                "commitment": "",
+                "notes": "set building",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-gabrell-burgos",
+                "name": "Gabrell Burgos",
+                "lastContact": "4/21/2026",
+                "commitment": "",
+                "notes": "",
+                "followup": "Yes",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-isaac",
+                "name": "Isaac",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-grace-kim",
+                "name": "Grace Kim",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "need to contact",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-savannah-e",
+                "name": "Savannah E",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-sarah-l",
+                "name": "Sarah L",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-melissa-kim",
+                "name": "Melissa Kim",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-chloe-guttorsmon",
+                "name": "Chloe Guttorsmon",
+                "lastContact": "",
+                "commitment": "cant help week but prep",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-perri-funk",
+                "name": "Perri funk",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-alexis-s",
+                "name": "Alexis S",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-ana-slavia",
+                "name": "Ana Slavia",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-brooke-nickleson",
+                "name": "Brooke Nickleson",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-alena",
+                "name": "Alena",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-monica",
+                "name": "Monica?",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-stephine-townsend",
+                "name": "Stephine Townsend?",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-ian-andrew",
+                "name": "Ian andrew",
+                "lastContact": "",
+                "commitment": "full comittement",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-elisabeth-martin",
+                "name": "Elisabeth martin",
+                "lastContact": "",
+                "commitment": "full comittement",
+                "notes": "wants to lead older kids",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-kes-hoffman",
+                "name": "kes hoffman",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-kyle-hoffman",
+                "name": "kyle hoffman",
+                "lastContact": "",
+                "commitment": "",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-jolayne",
+                "name": "joLayne",
+                "lastContact": "",
+                "commitment": "full comittement",
+                "notes": "",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        },
+        {
+                "id": "interest-nick-manning",
+                "name": "Nick Manning",
+                "lastContact": "",
+                "commitment": "non-vbs week",
+                "notes": "wants to help with design",
+                "followup": "",
+                "status": "Interest",
+                "days": [],
+                "assignmentType": "station",
+                "assignmentId": "",
+                "role": "Support"
+        }
+],
+      pages: [
+        { id: 'room-design-blueprint', title: 'Room Design Blueprint', status: 'Planning', body: 'Purpose:\nKeep every station, room, decor plan, and low-cost backup option in one place.\n\nCore Room Plan:\nSanctuary, Jungle Jam worship and dance. Rainforest environment, waterfall installation by stage, chairs moved to the back, animal/color group signs for morning gathering and pickup.\n\nMPR Room, Bible Under the Waterfall. Hallway water effect with tinsel foil curtains, blue paper walls, sea animals, coral, rocks, fishing nets, and lesson-linked props.\n\nKitchen and outside kitchen area, Snack Shack. Simple hut feel with paper, vines, flowers, leaves, and a covering over the kitchen windows.\n\nPre-K Room, Cave Room. Gray paper walls, cardboard rocks and boulders, quieter younger-kid activity space.\n\nTots Room, Verse Vines. Minimal added decor because of existing animal walls. Add vines, greenery, or ceiling elements as needed.\n\nNursery Room, 3-year-old hangout or overflow. Use for potty-trained preschool support, reset space, or overflow.\n\nElementary Area, Creation Station. Paper-covered walls except cabinets and doors, vines, flowers, leaves, animal cutouts, tree pillars, and structured craft tables.\n\nOutside Area, Wild About God Games. No major decorations. Keep games and props on theme.\n\nBriefing Room. Volunteer check-in, supplies, floaters, and coordinator staging.\n\nBudget Backup:\nUse plastic tablecloths on walls when paper is too expensive or time-consuming. Focus the strongest decor in the highest-impact spaces.', },
+        { id: 'day-4-fun-day', title: 'Day 4 Fun Day + BBQ', status: 'Draft', body: 'Purpose:\nDay 4 is a freestyle celebration day. It should feel like the June fun day, with games, face paint, worship games, relaxed rotations, and a family-style barbecue.\n\nSuggested Day 4 Flow:\n9:00 AM, Fun Day kickoff in Sanctuary.\n9:30 AM, Games and face paint open.\n10:00 AM, Freestyle craft or memory keepsake station opens.\n10:30 AM, Dance party / worship games in Sanctuary and BBQ setup begins.\n11:00 AM, Family-style BBQ lunch begins.\n11:30 AM, Open games continue for kids who finish eating.\n12:30 PM, Closing celebration, family connection, prayer, and pickup.\n\nNotes:\nPull games from VBS day 4 and day 5 options. Keep stations flexible. Use floaters to help with bathroom trips, line control, face paint, food setup, and transitions.' },
+        { id: 'volunteer-training', title: 'Volunteer Training', status: 'Draft', body: 'Purpose:\nPrepare volunteers to lead with clarity, warmth, and confidence.\n\nSections to build:\n1. Arrival expectations\n2. Room assignments\n3. Safety and check-in notes\n4. How to lead kids through transitions\n5. Prayer and ministry posture' },
+        { id: 'parent-communication', title: 'Parent Communication', status: 'Draft', body: 'Use this page for parent emails, Sunday announcements, invitation language, and follow-up notes.' },
+        { id: 'supply-list', title: 'Supply List', status: 'Planning', body: 'Track craft supplies, snack supplies, room materials, printed cards, posters, check-in supplies, and decorations.' }
+      ]
+    };
+
+    let data = loadData();
+    function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+    function makeId(text) { return String(text || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Math.random().toString(36).slice(2, 7); }
+    function escapeHtml(value) { return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+    function escapeAttr(value) { return escapeHtml(value); }
+    function normalizeSlotArray(arr, desired) { const out = Array.isArray(arr) ? arr.slice(0, desired) : []; while (out.length < desired) out.push(''); return out; }
+    function loadData() { try { const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY_V3) || localStorage.getItem(LEGACY_STORAGE_KEY); return mergeData(saved ? JSON.parse(saved) : clone(DEFAULT_DATA)); } catch { return mergeData(clone(DEFAULT_DATA)); } }
+    function mergeData(saved) {
+      const merged = clone(DEFAULT_DATA); Object.assign(merged, saved || {});
+      merged.registration = Object.assign(clone(DEFAULT_DATA.registration), saved?.registration || {}); merged.registration.filters = Object.assign(clone(DEFAULT_DATA.registration.filters), saved?.registration?.filters || {});
+      merged.scheduleSettings = Object.assign(clone(DEFAULT_DATA.scheduleSettings), saved?.scheduleSettings || {});
+      merged.stations = Array.isArray(saved?.stations) && saved.stations.length ? saved.stations : clone(DEFAULT_DATA.stations);
+      DEFAULT_DATA.stations.forEach(st => { if (!merged.stations.some(existing => existing.id === st.id)) merged.stations.push(clone(st)); });
+      merged.rooms = Array.isArray(saved?.rooms) && saved.rooms.length ? saved.rooms : clone(DEFAULT_DATA.rooms);
+      DEFAULT_DATA.rooms.forEach(room => { if (!merged.rooms.some(existing => existing.id === room.id)) merged.rooms.push(clone(room)); });
+      merged.rooms.forEach(room => { delete room.owner; });
+      merged.scheduleBlocks = Object.assign(clone(DEFAULT_DATA.scheduleBlocks), saved?.scheduleBlocks || {});
+      merged.pages = Array.isArray(saved?.pages) && saved.pages.length ? saved.pages : clone(DEFAULT_DATA.pages);
+      DEFAULT_DATA.pages.forEach(page => { if (!merged.pages.some(existing => existing.id === page.id)) merged.pages.unshift(clone(page)); });
+      merged.groups = Array.isArray(saved?.groups) ? saved.groups : [];
+      merged.volunteerInterest = Array.isArray(saved?.volunteerInterest) && saved.volunteerInterest.length ? saved.volunteerInterest : clone(DEFAULT_DATA.volunteerInterest);
+      return merged;
+    }
+    function saveData(show = false) { syncTopInputs(); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); if (show) showSaved('Saved'); }
+    function showSaved(text = 'Auto-saved') { const el = document.getElementById('saveStatus'); if (!el) return; el.textContent = text; clearTimeout(showSaved.timer); showSaved.timer = setTimeout(() => { el.textContent = 'Auto-saved'; }, 1500); }
+    function getEditorName() { return (document.getElementById('editorNameInput')?.value || localStorage.getItem(EDITOR_KEY) || data.editorName || 'Unknown editor').trim(); }
+    function loadHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; } }
+    function saveHistory(history) { localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 50))); }
+    function createCheckpoint(label = 'Manual checkpoint', shouldSync = true) { if (shouldSync) syncTopInputs(); const history = loadHistory(); const stamp = new Date().toISOString(); history.unshift({ id: makeId('version'), label, editor: getEditorName(), createdAt: stamp, summary: summarizeData(), data: clone(data) }); saveHistory(history); renderVersions(); showSaved('Checkpoint saved'); }
+    function summarizeData() { return `${data.rooms.length} rooms, ${data.groups.length} groups, ${data.stations.length} stations, ${Object.keys(data.scheduleBlocks || {}).length} schedule blocks`; }
+    function restoreVersion(id) { const version = loadHistory().find(v => v.id === id); if (!version || !confirm('Restore this saved version? Current data will be replaced, but the history will remain.')) return; data = mergeData(clone(version.data)); saveData(false); renderAll(); showView('versionView'); showSaved('Version restored'); }
+    function deleteVersion(id) { const history = loadHistory().filter(v => v.id !== id); saveHistory(history); renderVersions(); showSaved('Version deleted'); }
+    function exportHistory() { downloadTextFile('house-kids-vbs-version-history.json', JSON.stringify(loadHistory(), null, 2), 'application/json;charset=utf-8;'); }
+
+
+    function syncTopInputs() { const v = id => document.getElementById(id); if (!v('eventTitleInput')) return; data.eventTitle = v('eventTitleInput').value || DEFAULT_DATA.eventTitle; data.kidCount = Math.max(1, parseInt(v('kidCountInput').value, 10) || 1); data.kidsPerGroup = Math.max(1, parseInt(v('kidsPerGroupInput').value, 10) || 1); data.leadsPerGroup = Math.max(0, parseInt(v('leadsPerGroupInput').value, 10) || 0); data.supportPerGroup = Math.max(0, parseInt(v('supportPerGroupInput').value, 10) || 0); data.teamPrefix = v('teamPrefixInput').value || 'Group'; data.editorName = v('editorNameInput')?.value || ''; data.jeraUrl = v('jeraUrlInput')?.value || ''; localStorage.setItem(EDITOR_KEY, data.editorName || ''); data.activeScheduleDay = v('scheduleDayInput')?.value || data.activeScheduleDay || 'Monday'; data.scheduleSettings.start = v('scheduleStartInput')?.value || data.scheduleSettings.start; data.scheduleSettings.end = v('scheduleEndInput')?.value || data.scheduleSettings.end; data.scheduleSettings.interval = parseInt(v('scheduleIntervalInput')?.value || data.scheduleSettings.interval, 10); data.scheduleSettings.timezone = v('scheduleTimezoneInput')?.value || data.scheduleSettings.timezone || 'America/Denver'; }
+    function fillInputs() { document.getElementById('eventTitleInput').value = data.eventTitle; document.getElementById('kidCountInput').value = data.kidCount; document.getElementById('kidsPerGroupInput').value = data.kidsPerGroup; document.getElementById('leadsPerGroupInput').value = data.leadsPerGroup; document.getElementById('supportPerGroupInput').value = data.supportPerGroup; document.getElementById('teamPrefixInput').value = data.teamPrefix; document.getElementById('editorNameInput').value = data.editorName || localStorage.getItem(EDITOR_KEY) || ''; document.getElementById('jeraUrlInput').value = data.jeraUrl || ''; document.getElementById('scheduleDayInput').value = data.activeScheduleDay || 'Monday'; document.getElementById('scheduleStartInput').value = data.scheduleSettings.start; document.getElementById('scheduleEndInput').value = data.scheduleSettings.end; document.getElementById('scheduleIntervalInput').value = String(data.scheduleSettings.interval); document.getElementById('scheduleTimezoneInput').value = data.scheduleSettings.timezone || 'America/Denver'; document.getElementById('minAgeInput').value = data.registration.filters.minAge; document.getElementById('maxAgeInput').value = data.registration.filters.maxAge; document.getElementById('registrationStatusFilter').value = data.registration.filters.status; document.getElementById('registrationSearchInput').value = data.registration.filters.search; }
+    function getPlan() { const groups = Math.ceil(Number(data.kidCount || 0) / Math.max(1, Number(data.kidsPerGroup || 1))); const groupVols = groups * (Number(data.leadsPerGroup || 0) + Number(data.supportPerGroup || 0)); const stationVols = data.stations.reduce((s, x) => s + Number(x.lead || 0) + Number(x.support || 0), 0); return { groups, groupVols, stationVols, allVols: groupVols + stationVols }; }
+    function ensureGroups() { const slots = Math.max(1, Number(data.leadsPerGroup || 0) + Number(data.supportPerGroup || 0)); if (Array.isArray(data.groups) && data.groups.some(g => g.ageBandId)) { data.groups.forEach(g => { g.days = g.days || {}; DAYS.forEach(day => g.days[day] = normalizeSlotArray(g.days[day], slots)); }); return; } const plan = getPlan(); const next = []; for (let i = 0; i < plan.groups; i++) { const old = data.groups[i] || {}; const days = {}; DAYS.forEach(day => days[day] = normalizeSlotArray(old?.days?.[day], slots)); next.push({ id: old.id || `group-${i+1}`, name: old.name || `${data.teamPrefix} ${i+1}`, kids: Array.isArray(old.kids) && old.kids.length ? old.kids : [''], days }); } data.groups = next; }
+    function ensureStations() { if (!data.stations.some(s => s.id === data.activeStationId)) data.activeStationId = data.stations[0]?.id || null; data.stations.forEach(st => { const count = Math.max(1, Number(st.lead || 0) + Number(st.support || 0)); st.days = st.days || {}; DAYS.forEach(day => st.days[day] = normalizeSlotArray(st.days[day], count)); }); }
+    function filledCount(arr) { return (arr || []).filter(v => String(v || '').trim()).length; }
+    function coverageHtml(needed, assigned) { return assigned >= needed ? '<span class="coverage-ok">Covered</span>' : `<span class="coverage-warn">Need ${needed - assigned} more</span>`; }
+
+    function allKids() { const list = []; data.groups.forEach(g => (g.kids || []).forEach(k => { const child = typeof k === 'object' ? k : { name: k }; const clean = String(child.name || k || '').trim(); if (clean) list.push({ name: clean, group: g.name, age: child.age ?? g.ageBand ?? '', type: 'Group Kid' }); })); return list.sort((a,b) => a.name.localeCompare(b.name)); }
+    function registeredKids() { return (data.registration.roster || []).filter(r => r.in_vbs_csv === 'Yes').map(r => ({ name: r.name, family: r.family, age: r.age, email: r.email, phone: r.phone, birthdate: r.birthdate, type: 'Registered Kid' })); }
+    const AGE_GROUPS = [
+      { id: 'tree-frogs', animal: 'Tree Frogs', color: 'Light Green', colorHex: '#8bdc65', label: 'Tree Frogs (Light Green): 3-year-olds, potty trained', min: 3, max: 3, grade: '3 yrs' },
+      { id: 'toucans', animal: 'Toucans', color: 'Yellow', colorHex: '#f5c84b', label: 'Toucans (Yellow): 4-5 years old, Pre-K / Kindergarten', min: 4, max: 5, grade: 'Pre-K / K' },
+      { id: 'monkeys', animal: 'Monkeys', color: 'Orange', colorHex: '#f27935', label: 'Monkeys (Orange): 6-7 years old, K-1st', min: 6, max: 7, grade: 'K-1st' },
+      { id: 'parrots', animal: 'Parrots', color: 'Dark Green', colorHex: '#0f7f66', label: 'Parrots (Dark Green): 8 years old, 2nd grade', min: 8, max: 8, grade: '2nd' },
+      { id: 'sloths', animal: 'Sloths', color: 'Blue', colorHex: '#39aee4', label: 'Sloths (Blue): 9 years old, 3rd grade', min: 9, max: 9, grade: '3rd' },
+      { id: 'jaguars', animal: 'Jaguars', color: 'Purple', colorHex: '#8173f6', label: 'Jaguars (Purple): 10 years old, 4th grade', min: 10, max: 10, grade: '4th' },
+      { id: 'tigers', animal: 'Tigers', color: 'Red', colorHex: '#df4b3f', label: 'Tigers (Red): 11-12 years old, 5th grade / oldest kids', min: 11, max: 12, grade: '5th' },
+      { id: 'age-review', animal: 'Needs Review', color: 'Gray', colorHex: '#999999', label: 'Needs age / grade review', min: null, max: null, grade: 'Review' }
+    ];
+        function childAgeNumber(child) { const age = Number(child?.age); return Number.isFinite(age) ? age : null; }
+    function ageGroupForChild(child) { const age = childAgeNumber(child); if (age === null) return AGE_GROUPS[AGE_GROUPS.length - 1]; return AGE_GROUPS.find(g => g.min !== null && age >= g.min && age <= g.max) || AGE_GROUPS[AGE_GROUPS.length - 1]; }
+    function childLabel(child) { const age = childAgeNumber(child); return `${child.name}${age === null ? ' (age NA)' : ` (age ${age})`}`; }
+    function slotNames(values) { return (values || []).map(v => String(v || '').trim()).filter(Boolean); }
+    function dayNamesForSlots(item, day) { return slotNames(item?.days?.[day] || []); }
+    function groupCoverage(group) { const needed = Math.max(1, Number(data.leadsPerGroup || 0) + Number(data.supportPerGroup || 0)); const openDays = DAYS.filter(day => filledCount(group.days?.[day]) < needed); return { needed, openDays }; }
+    function stationCoverage(station) { const needed = Math.max(1, Number(station.lead || 0) + Number(station.support || 0)); const openDays = DAYS.filter(day => filledCount(station.days?.[day]) < needed); return { needed, openDays }; }
+    function warningBadge(openDays) { return openDays.length ? `<span class="pill pill-red">⚠ Needs volunteers: ${escapeHtml(openDays.join(', '))}</span>` : '<span class="pill pill-green">Covered</span>'; }
+    function inferStationsForBlock(room, block) { const haystack = norm([room?.name, room?.purpose, block?.activity, block?.groupNotes, block?.notes].join(' ')); return data.stations.filter(st => { const stationName = norm(st.name); const base = stationName.replace(/\s*\+\s*/g, ' ').replace(/\s+/g, ' '); return haystack.includes(stationName) || haystack.includes(base) || stationName.split(' ').some(part => part.length > 4 && haystack.includes(part)); }); }
+    function inferGroupsForBlock(block) { const notes = norm([block?.activity, block?.groupNotes, block?.notes].join(' ')); if (notes.includes('whole group') || notes.includes('all groups')) return data.groups; return data.groups.filter(g => notes.includes(norm(g.name))); }
+    function autoPeopleForBlock(roomId, time, block = null) { const day = data.activeScheduleDay || 'Monday'; const room = data.rooms.find(r => r.id === roomId); const current = block || getScheduleBlock(roomId, time) || {}; const people = [];
+      inferStationsForBlock(room, current).forEach(st => { const names = dayNamesForSlots(st, day); if (names.length) people.push({ source: `${st.name} station volunteers (${day})`, names }); });
+      inferGroupsForBlock(current).forEach(g => { const names = dayNamesForSlots(g, day); if (names.length) people.push({ source: `${g.name} group volunteers (${day})`, names }); });
+      return people;
+    }
+    function autoPeopleText(roomId, time, block = null) { return autoPeopleForBlock(roomId, time, block).flatMap(x => x.names).filter(Boolean).join(', '); }
+    function timeToMin(value) {
+      const clean = String(value || '00:00').trim();
+      const match = clean.match(/^(\d{1,2}):(\d{2})$/);
+      if (!match) return 0;
+      const h = Math.max(0, Math.min(23, Number(match[1]) || 0));
+      const m = Math.max(0, Math.min(59, Number(match[2]) || 0));
+      return h * 60 + m;
+    }
+    function minToTime(value) {
+      const total = Math.max(0, Number(value) || 0);
+      const h = Math.floor(total / 60) % 24;
+      const m = total % 60;
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+    function timeLabel(value) {
+      const mins = timeToMin(value);
+      let h = Math.floor(mins / 60);
+      const m = mins % 60;
+      const suffix = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      return `${h}:${String(m).padStart(2, '0')} ${suffix}`;
+    }
+    function getBlockKey(roomId, time, day = data.activeScheduleDay || 'Monday') { return `${day}|${roomId}|${time}`; }
+    function getLegacyBlockKey(roomId, time) { return `${roomId}|${time}`; }
+    function getScheduleBlock(roomId, time) { return data.scheduleBlocks[getBlockKey(roomId, time)] || data.scheduleBlocks[getLegacyBlockKey(roomId, time)] || {}; }
+    function uniqueVolunteerMap() { const map = new Map(); const add = (name, assignment) => { const clean = String(name || '').trim(); if (!clean) return; if (!map.has(clean)) map.set(clean, { days: new Set(), assignments: [] }); map.get(clean).days.add(assignment.day || 'Schedule'); map.get(clean).assignments.push(assignment); };
+      data.groups.forEach(g => DAYS.forEach(day => (g.days[day] || []).forEach((n,i) => add(n, { day, type: 'Group', name: g.name, role: i < data.leadsPerGroup ? 'Lead' : 'Support', time: `Slot ${i+1}` }))));
+      data.stations.forEach(s => DAYS.forEach(day => (s.days[day] || []).forEach((n,i) => add(n, { day, type: 'Station', name: s.name, role: i < s.lead ? 'Lead' : 'Support', time: `Slot ${i+1}` }))));
+      return Array.from(map.entries()).sort((a,b) => a[0].localeCompare(b[0])).map(([name, info]) => ({ name, days: Array.from(info.days), assignments: info.assignments })); }
+    function buildPeopleIndex() { const people = []; uniqueVolunteerMap().forEach(v => people.push({ key: `vol-${v.name}`, type: 'Volunteer', name: v.name, assignments: v.assignments })); allKids().forEach(k => people.push({ key: `kid-${k.name}`, type: 'Kid', name: k.name, assignments: DAYS.map(day => ({ day, type: 'Group', name: k.group, role: `Age ${k.age || 'NA'}`, time: 'Group time' })) })); registeredKids().forEach(k => { if (!people.some(p => p.name.toLowerCase() === k.name.toLowerCase() && (p.type === 'Kid' || p.type === 'Registered Kid'))) people.push({ key: `reg-${k.name}`, type: 'Registered Kid', name: k.name, assignments: [{ day: 'Registration', type: 'Roster', name: k.family || 'Family TBD', role: `Age ${k.age || 'NA'}`, time: 'Registered' }] }); }); return people.sort((a,b) => a.name.localeCompare(b.name)); }
+
+    function renderOverview() { const plan = getPlan(); const roster = data.registration.roster || []; const registered = roster.filter(r => r.in_vbs_csv === 'Yes').length; const volunteers = uniqueVolunteerMap(); const openStations = data.stations.filter(s => stationCoverage(s).openDays.length).length; const openGroups = data.groups.filter(g => groupCoverage(g).openDays.length).length; const heroTitleEl = document.getElementById('heroTitle'); if (heroTitleEl) heroTitleEl.textContent = data.eventTitle; document.getElementById('statsBar').innerHTML = stat('Projected Kids', data.kidCount) + stat('Groups', data.groups.length || plan.groups) + stat('Registered', registered) + stat('Volunteer Slots', plan.allVols) + stat('Named Volunteers', volunteers.length) + stat('Needs Help', openStations + openGroups); const mini = document.getElementById('overviewRegistrationMini'); if (mini) mini.innerHTML = [['VBS rows', data.registration.vbsRows.length], ['Family rows', data.registration.familyRows.length], ['Merged roster', roster.length], ['Registered children', registered]].map(x => `<div class="stack-item"><strong>${escapeHtml(x[0])}</strong><span>${escapeHtml(x[1])}</span></div>`).join('');
+      document.getElementById('overviewSummary').innerHTML = [ ['Event', data.eventTitle], ['Projected kids', data.kidCount], ['Registration roster', roster.length ? `${registered} registered out of ${roster.length} total merged records` : 'No roster loaded yet'], ['Age-band groups', data.groups.length ? `${data.groups.length} groups created by age` : 'No groups created yet'], ['Planning Board', data.jeraUrl || 'No schedule link added yet'] ].map(x => `<div class="stack-item"><strong>${escapeHtml(x[0])}</strong><span>${escapeHtml(x[1])}</span></div>`).join('');
+      document.getElementById('roomSnapshot').innerHTML = data.rooms.map(r => `<div class="stack-item"><strong>${escapeHtml(r.name)}</strong><span>${escapeHtml(r.purpose || 'No purpose added yet')}</span></div>`).join('');
+      const stationWarnings = data.stations.filter(s => stationCoverage(s).openDays.length).map(s => `⚠ ${s.name}: needs volunteers on ${stationCoverage(s).openDays.join(', ')}`);
+      const groupWarnings = data.groups.filter(g => groupCoverage(g).openDays.length).map(g => `⚠ ${g.name}: needs volunteers on ${groupCoverage(g).openDays.join(', ')}`);
+      document.getElementById('actionList').innerHTML = [...stationWarnings, ...groupWarnings, `${data.pages.length} planning pages are available.`, `Use Export saved website file when you want the current plan embedded into a new HTML file.`].map(x => `<div class="stack-item"><span>${escapeHtml(x)}</span></div>`).join(''); }
+    function stat(label, value) { return `<div class="stat"><div class="stat-label">${escapeHtml(label)}</div><div class="stat-value">${escapeHtml(value)}</div></div>`; }
+
+    function renderTimeline() {
+      if (!data.rooms || !data.rooms.length) data.rooms = clone(DEFAULT_DATA.rooms);
+      const start = timeToMin(data.scheduleSettings.start), end = timeToMin(data.scheduleSettings.end), step = Number(data.scheduleSettings.interval || 30);
+      const slots = []; for (let t = start; t < end; t += step) slots.push(minToTime(t));
+      let html = `<div class="timeline-corner">Room / ${escapeHtml(data.activeScheduleDay || 'Day')}</div>` + slots.map(t => `<div class="timeline-time">${escapeHtml(timeLabel(t))}</div>`).join('');
+      data.rooms.forEach(room => {
+        html += `<div class="timeline-room"><strong>${escapeHtml(room.name)}</strong><br><span class="small">${escapeHtml(room.purpose || 'Click a time block to edit')}</span></div>`;
+        slots.forEach(time => {
+          const block = getScheduleBlock(room.id, time);
+          const endTime = block.endTime || minToTime(timeToMin(time) + step);
+          const filled = block.activity || block.notes || block.endTime;
+          html += `<div class="timeline-cell" onclick="openBlockModal('${escapeAttr(room.id)}','${escapeAttr(time)}')">${filled ? `<div class="timeline-block"><span>${escapeHtml(room.name)}</span><small>${escapeHtml(timeLabel(block.startTime || time))} to ${escapeHtml(timeLabel(endTime))}${block.activity ? ' | ' + escapeHtml(block.activity) : ''}</small></div>` : ''}</div>`;
+        });
+      });
+      const grid = document.getElementById('timelineGrid');
+      grid.style.gridTemplateColumns = `220px repeat(${slots.length}, 140px)`;
+      grid.innerHTML = html;
+    }
+    function renderRooms() { document.getElementById('roomCards').innerHTML = data.rooms.map((r,i) => `<div class="card"><span class="pill pill-blue">Room</span><div class="field"><label>Room Name</label><input value="${escapeAttr(r.name)}" oninput="data.rooms[${i}].name=this.value; saveData(false);"></div><div class="field"><label>Purpose</label><input value="${escapeAttr(r.purpose)}" oninput="data.rooms[${i}].purpose=this.value; saveData(false);"></div><div class="field"><label>Notes</label><textarea oninput="data.rooms[${i}].notes=this.value; saveData(false);">${escapeHtml(r.notes)}</textarea></div><button class="mini-btn" onclick="removeRoom(${i})">Remove room</button></div>`).join(''); }
+    function renderAgeGroupGuide() { const el = document.getElementById('ageGroupGuide'); if (!el) return; el.innerHTML = AGE_GROUPS.filter(g => g.id !== 'age-review').map(g => `<div class="stack-item"><strong><span class="color-swatch" style="background:${escapeAttr(g.colorHex)}"></span>${escapeHtml(g.animal)} (${escapeHtml(g.color)})</strong><span>${escapeHtml(g.label)}</span></div>`).join(''); }
+    function renderGroups() { renderAgeGroupGuide(); const cards = document.getElementById('groupCards'); if (!cards) return; cards.innerHTML = data.groups.map((g,gi) => { const cov = groupCoverage(g); const swatch = g.colorHex ? `<span class="color-swatch" style="background:${escapeAttr(g.colorHex)}"></span>` : ''; const kids = (g.kids || []).map(k => typeof k === 'object' ? k : {name:k, age:''}).filter(k => String(k.name||'').trim()); const open = cov.openDays.length ? `<span class="pill pill-red">Needs volunteers: ${escapeHtml(cov.openDays.join(', '))}</span>` : `<span class="pill pill-green">Covered</span>`; return `<div class="card" onclick="openGroupModal(${gi})" style="cursor:pointer;border-top:8px solid ${escapeAttr(g.colorHex || '#ddd')}"><h4>${swatch}${escapeHtml(g.name)}</h4><p class="small">${escapeHtml(g.ageBand || '')}</p><p><span class="pill pill-blue">${kids.length} kids</span>${open}</p><div class="stack-list">${kids.slice(0,6).map(k => `<div class="stack-item"><strong>${escapeHtml(k.name)}</strong><span>Age ${escapeHtml(k.age || 'NA')}</span></div>`).join('')}${kids.length > 6 ? `<div class="stack-item"><span>${kids.length - 6} more kids</span></div>` : ''}</div></div>`; }).join('') || '<div class="card"><p>No groups yet. Run registration merge, then use registered kids for groups.</p></div>'; }
+
+    function renderStations() {
+      const cards = document.getElementById('stationCards');
+      const legacyWrap = document.getElementById('stationPanels');
+      const tabs = document.getElementById('stationTabs');
+      const html = data.stations.map((s,si) => {
+        const cov = stationCoverage(s);
+        const open = cov.openDays.length ? `<span class="pill pill-red">Needs volunteers: ${escapeHtml(cov.openDays.join(', '))}</span>` : `<span class="pill pill-green">Covered</span>`;
+        const assigned = DAYS.map(day => `<div class="stack-item"><strong>${escapeHtml(day)}</strong><span>${escapeHtml((s.days?.[day] || []).filter(Boolean).join(', ') || 'No volunteers assigned')}</span></div>`).join('');
+        return `<div class="card click-card" onclick="openStationModal(${si})"><h4>${escapeHtml(s.name)}</h4><p><span class="pill pill-blue">Lead ${escapeHtml(s.lead || 0)}</span><span class="pill pill-purple">Support ${escapeHtml(s.support || 0)}</span></p>${open}<div class="compact-list">${assigned}</div><p class="small">Click to edit station details and day-by-day volunteers.</p></div>`;
+      }).join('') || '<div class="empty-state-card">No stations yet. Use Add station to create one.</div>';
+      if (cards) cards.innerHTML = html;
+      if (tabs) tabs.innerHTML = '';
+      if (legacyWrap) legacyWrap.innerHTML = '';
+    }
+
+    function standardizeVolunteerRow(row) {
+      const first = getField(row, ['first_name','first name','first','given_name','given name']);
+      const last = getField(row, ['last_name','last name','last','surname','family_name','family name']);
+      const full = getField(row, ['name','full_name','full name','volunteer','person','participant','preferred_name','preferred name']) || [first, last].filter(Boolean).join(' ');
+      const email = getField(row, ['email','email_address','email address','home_email','home email']);
+      const phone = getField(row, ['phone','mobile','mobile_phone','mobile phone','cell','cell_phone','cell phone']);
+      const contactPieces = [];
+      if (email) contactPieces.push(email);
+      if (phone) contactPieces.push(phone);
+      return {
+        id: makeId(full || 'volunteer'),
+        name: full,
+        lastContact: getField(row, ['date_of_last_contact','date of last contact','last_contact','last contact','contacted']),
+        contact: contactPieces.join(' | '),
+        commitment: getField(row, ['commitment','availability','serving_commitment','serving commitment','available']),
+        notes: getField(row, ['notes','note','comments','comment','serving_notes','serving notes']),
+        followup: getField(row, ['followup_needed','followup needed','follow_up_needed','follow up needed','followup','follow up']),
+        status: getField(row, ['status','serving_status','serving status']) || 'Interest',
+        days: [],
+        assignmentType: 'station',
+        assignmentId: '',
+        role: 'Support'
+      };
+    }
+
+    async function importVolunteerCsvFile(file) { if (!file) return; try { setVolunteerStatus(`Reading ${file.name}...`); const rows = await readCsvFile(file); const incoming = rows.map(standardizeVolunteerRow).filter(v => String(v.name || '').trim()); const byName = new Map((data.volunteerInterest || []).map(v => [norm(v.name), v])); let added = 0, updated = 0; incoming.forEach(v => { const key = norm(v.name); if (byName.has(key)) { Object.assign(byName.get(key), { lastContact: byName.get(key).lastContact || v.lastContact, contact: byName.get(key).contact || v.contact, commitment: byName.get(key).commitment || v.commitment, notes: byName.get(key).notes || v.notes, followup: byName.get(key).followup || v.followup, status: byName.get(key).status || v.status }); updated++; } else { data.volunteerInterest.push(v); added++; } }); saveAndRender(); setVolunteerStatus(`Loaded ${incoming.length} volunteer rows. Added ${added}, updated ${updated}.`); } catch (err) { console.error(err); setVolunteerStatus('Volunteer CSV could not be read. Export it as a normal CSV and try again.'); } }
+    function addVolunteerInterest() { const name = prompt('Volunteer name?'); if (!name || !name.trim()) return; data.volunteerInterest.push({ id: makeId(name), name: name.trim(), lastContact: '', commitment: '', notes: '', followup: '', status: 'Interest', days: [], assignmentType: 'station', assignmentId: '', role: 'Support' }); saveAndRender(); showView('volunteerInterestView'); }
+    function removeVolunteerInterest(index) { if (!confirm('Remove this volunteer interest record?')) return; data.volunteerInterest.splice(index,1); saveAndRender(); }
+    function toggleVolunteerDay(index, day, checked) { const item = data.volunteerInterest[index]; if (!item) return; item.days = item.days || []; if (checked && !item.days.includes(day)) item.days.push(day); if (!checked) item.days = item.days.filter(d => d !== day); saveData(false); renderVolunteerInterest(); }
+    function commitVolunteerInterest(index) { const item = data.volunteerInterest[index]; if (!item) return; const days = item.days && item.days.length ? item.days : DAYS; const targetList = item.assignmentType === 'group' ? data.groups : data.stations; const target = targetList.find(x => x.id === item.assignmentId) || targetList[0]; if (!target) return; const needed = item.assignmentType === 'group' ? Math.max(1, Number(data.leadsPerGroup||0) + Number(data.supportPerGroup||0)) : Math.max(1, Number(target.lead||0) + Number(target.support||0)); target.days = target.days || {}; days.forEach(day => { target.days[day] = normalizeSlotArray(target.days[day], needed); const open = target.days[day].findIndex(v => !String(v||'').trim()); if (open >= 0) target.days[day][open] = item.name; }); item.status = 'Committed'; saveAndRender(); }
+    function renderVolunteerInterest() {
+      const body = document.getElementById('volunteerInterestBody');
+      if (!body) return;
+      const items = data.volunteerInterest || [];
+      body.innerHTML = items.map((v,i) => {
+        const targetOptions = (v.assignmentType === 'group' ? data.groups : data.stations).map(x => `<option value="${escapeAttr(x.id)}" ${x.id === v.assignmentId ? 'selected' : ''}>${escapeHtml(x.name)}</option>`).join('');
+        return `<tr><td><input value="${escapeAttr(v.name)}" onchange="data.volunteerInterest[${i}].name=this.value;saveData(true);renderVolunteerDirectory();"></td><td><input placeholder="Email, phone, or last contact" value="${escapeAttr(v.contact || v.lastContact || '')}" onchange="data.volunteerInterest[${i}].contact=this.value;saveData(true)"></td><td><input value="${escapeAttr(v.commitment||'')}" onchange="data.volunteerInterest[${i}].commitment=this.value;saveData(true)"><p class="small">${escapeHtml(v.notes||'')}</p></td><td><select onchange="data.volunteerInterest[${i}].status=this.value;saveData(true);renderVolunteerDirectory();"><option ${v.status==='Interest'?'selected':''}>Interest</option><option ${v.status==='Contacted'?'selected':''}>Contacted</option><option ${v.status==='Committed'?'selected':''}>Committed</option><option ${v.status==='Prep only'?'selected':''}>Prep only</option></select></td><td>${DAYS.map(day => `<label style="display:block"><input style="width:auto" type="checkbox" ${v.days?.includes(day)?'checked':''} onchange="toggleVolunteerDay(${i},'${day}',this.checked)"> ${day}</label>`).join('')}</td><td><select onchange="data.volunteerInterest[${i}].assignmentType=this.value;data.volunteerInterest[${i}].assignmentId='';saveAndRender(false)"><option value="station" ${v.assignmentType!=='group'?'selected':''}>Station</option><option value="group" ${v.assignmentType==='group'?'selected':''}>Group</option></select><select onchange="data.volunteerInterest[${i}].assignmentId=this.value;saveData(true)">${targetOptions}</select></td><td class="row-actions"><button class="mini-btn" onclick="commitVolunteerInterest(${i})">Commit</button><button class="mini-btn" onclick="removeVolunteerInterest(${i})">Remove</button></td></tr>`;
+      }).join('') || '<tr><td colspan="7">No volunteers yet. Upload a CSV or add a person.</td></tr>';
+    }
+    function renderVolunteerDirectory() {
+      const body = document.getElementById('volunteerDirectoryBody');
+      if (!body) return;
+      const assigned = uniqueVolunteerMap();
+      const assignedNames = new Set(assigned.map(v => norm(v.name)));
+      const interestRows = (data.volunteerInterest || []).filter(v => v.name && !assignedNames.has(norm(v.name))).map(v => ({
+        name: v.name,
+        days: v.days && v.days.length ? v.days : [],
+        assignments: [{ day: v.status || 'Interest', name: v.assignmentId ? (data.stations.find(s => s.id === v.assignmentId)?.name || data.groups.find(g => g.id === v.assignmentId)?.name || 'Selected assignment') : 'Not assigned yet', role: v.role || 'Support', time: v.commitment || v.contact || v.notes || 'Volunteer interest pipeline' }]
+      }));
+      const vols = assigned.concat(interestRows).sort((a,b) => a.name.localeCompare(b.name));
+      body.innerHTML = vols.length ? vols.map(v => `<tr><td><strong>${escapeHtml(v.name)}</strong></td><td>${escapeHtml(v.days.length ? v.days.join(', ') : 'Not scheduled yet')}</td><td>${v.assignments.map(a => `${escapeHtml(a.day)}: ${escapeHtml(a.name)} (${escapeHtml(a.role)}, ${escapeHtml(a.time)})`).join('<br>')}</td></tr>`).join('') : '<tr><td colspan="3">No volunteers entered yet. Upload the volunteer CSV on the Volunteer Interest page.</td></tr>';
+    }
+    function renderPeopleSearch() { const query = document.getElementById('personSearch').value.trim().toLowerCase(); const people = buildPeopleIndex().filter(p => !query || p.name.toLowerCase().includes(query)); document.getElementById('personSearchResults').innerHTML = people.length ? people.map(p => `<button class="chip-btn" onclick="selectPerson('${encodeURIComponent(p.key)}')">${escapeHtml(p.name)}<br><span class="small">${escapeHtml(p.type)}</span></button>`).join('') : '<div class="meta">No matching names found.</div>'; if (data.selectedPersonKey) renderSelectedPerson(); }
+    function selectPerson(key) { data.selectedPersonKey = decodeURIComponent(key); saveData(false); renderSelectedPerson(); }
+    function renderSelectedPerson() { const p = buildPeopleIndex().find(x => x.key === data.selectedPersonKey); const empty = document.getElementById('personEmptyState'), result = document.getElementById('personResult'); if (!p) { empty.classList.remove('hidden'); result.innerHTML = ''; return; } empty.classList.add('hidden'); result.innerHTML = `<span class="pill pill-purple">${escapeHtml(p.type)}</span><h3>${escapeHtml(p.name)}</h3><div class="schedule-list">${p.assignments.map(a => `<div class="stack-item"><strong>${escapeHtml(a.day)}</strong><span>${escapeHtml(a.name)}</span><span>${escapeHtml(a.role)}</span><span>${escapeHtml(a.time)}</span></div>`).join('')}</div>`; }
+
+    function renderVersions() { const list = document.getElementById('versionList'); const summary = document.getElementById('syncSetupSummary'); if (!list || !summary) return; const history = loadHistory(); summary.innerHTML = [ ['Editor', getEditorName()], ['Planning Board link', data.jeraUrl ? 'Connected by link' : 'No link added'], ['Save mode', 'Browser local save with export/import'], ['Rollback', history.length ? `${history.length} checkpoints available` : 'No checkpoints yet'] ].map(x => `<div class="stack-item"><strong>${escapeHtml(x[0])}</strong><span>${escapeHtml(x[1])}</span></div>`).join(''); list.innerHTML = history.length ? history.map(v => `<div class="stack-item"><strong>${escapeHtml(new Date(v.createdAt).toLocaleString())} • ${escapeHtml(v.label)}</strong><span>Editor: ${escapeHtml(v.editor || 'Unknown')}</span><span>${escapeHtml(v.summary || '')}</span><div class="inline-actions"><button class="mini-btn" onclick="restoreVersion('${v.id}')">Restore</button><button class="mini-btn" onclick="deleteVersion('${v.id}')">Delete</button></div></div>`).join('') : '<div class="stack-item"><span>No saved checkpoints yet. Click Create checkpoint to save a restorable version.</span></div>'; }
+    function openJeraSchedule() { syncTopInputs(); if (!data.jeraUrl) { alert('Paste your planning board link in Event Setup first.'); return; } window.open(data.jeraUrl, '_blank'); }
+
+    function renderPages() { if (!data.activePageId && data.pages[0]) data.activePageId = data.pages[0].id; document.getElementById('pageTabs').innerHTML = data.pages.map(p => `<button class="tab-btn ${p.id === data.activePageId ? 'active' : ''}" onclick="data.activePageId='${p.id}'; saveData(false); renderPages();">${escapeHtml(p.title)}</button>`).join(''); document.getElementById('pagePanels').innerHTML = data.pages.map((p,i) => `<div class="${p.id === data.activePageId ? '' : 'hidden'}"><div class="card"><div class="form-grid"><div class="field"><label>Page Title</label><input value="${escapeAttr(p.title)}" oninput="data.pages[${i}].title=this.value; saveData(false);"></div><div class="field"><label>Status</label><input value="${escapeAttr(p.status)}" oninput="data.pages[${i}].status=this.value; saveData(false);"></div></div><div class="field"><label>Page Content</label><textarea style="min-height:330px" oninput="data.pages[${i}].body=this.value; saveData(false);">${escapeHtml(p.body)}</textarea></div><div class="inline-actions"><button class="mini-btn" onclick="duplicatePage(${i})">Duplicate page</button><button class="mini-btn" onclick="removePage(${i})">Remove page</button></div></div></div>`).join(''); renderSidebarPages(); }
+    function renderSidebarPages() { document.getElementById('sidebarPages').innerHTML = data.pages.map(p => `<button class="chip-btn" onclick="showView('pagesView'); data.activePageId='${p.id}'; renderPages();">${escapeHtml(p.title)}<br><span class="small">${escapeHtml(p.status || 'Draft')}</span></button>`).join(''); }
+
+    function parseCSV(text) {
+      text = String(text || '').replace(/^\uFEFF/, '');
+      const firstLine = text.split(/\r?\n/).find(line => line.trim()) || '';
+      const counts = { ',': (firstLine.match(/,/g) || []).length, '\t': (firstLine.match(/\t/g) || []).length, ';': (firstLine.match(/;/g) || []).length };
+      const delimiter = counts['\t'] > counts[','] && counts['\t'] >= counts[';'] ? '\t' : (counts[';'] > counts[','] ? ';' : ',');
+      const rows = []; let row = [], cell = '', quoted = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i], n = text[i + 1];
+        if (c === '"') { if (quoted && n === '"') { cell += '"'; i++; } else quoted = !quoted; }
+        else if (c === delimiter && !quoted) { row.push(cell); cell = ''; }
+        else if ((c === '\n' || c === '\r') && !quoted) { if (c === '\r' && n === '\n') i++; row.push(cell); if (row.some(v => String(v).trim())) rows.push(row); row = []; cell = ''; }
+        else cell += c;
+      }
+      row.push(cell); if (row.some(v => String(v).trim())) rows.push(row);
+      if (!rows.length) return [];
+      const headers = rows[0].map(cleanKey);
+      return rows.slice(1).map(vals => { const obj = {}; headers.forEach((h, i) => obj[h || `column_${i + 1}`] = String(vals[i] ?? '').trim()); return obj; }).filter(obj => Object.values(obj).some(v => String(v).trim()));
+    }
+    function cleanKey(value) { return String(value || '').toLowerCase().replace(/\uFEFF/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); }
+    function setRegistrationStatus(message) { const el = document.getElementById('registrationStatus'); if (el) el.textContent = message; }
+    function setVolunteerStatus(message) { const el = document.getElementById('volunteerUploadStatus'); if (el) el.textContent = message; }
+    function readCsvFile(file) { return new Promise((resolve, reject) => { if (!file) return resolve([]); const reader = new FileReader(); reader.onload = e => { try { resolve(parseCSV(e.target.result)); } catch (err) { reject(err); } }; reader.onerror = reject; reader.readAsText(file); }); }
+    function norm(value) { return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+    function compact(value) { return norm(value).replace(/\s+/g, ''); }
+    function getField(row, names) { for (const name of names) { const key = cleanKey(name); if (row[key] !== undefined && String(row[key]).trim() !== '') return String(row[key]).trim(); } const keys = Object.keys(row || {}); for (const name of names) { const key = cleanKey(name); const found = keys.find(k => k === key || k.includes(key) || key.includes(k)); if (found && String(row[found]).trim() !== '') return String(row[found]).trim(); } return ''; }
+    function splitName(full) { const parts = norm(full).split(/\s+/).filter(Boolean); return { first: parts[0] || '', last: parts.length > 1 ? parts[parts.length - 1] : '' }; }
+    function similarity(a, b) { a = compact(a); b = compact(b); if (!a && !b) return 1; if (!a || !b) return 0; const longer = a.length >= b.length ? a : b; const shorter = a.length >= b.length ? b : a; let matches = 0; const used = new Array(longer.length).fill(false); for (const ch of shorter) { const idx = longer.split('').findIndex((c, i) => !used[i] && c === ch); if (idx >= 0) { used[idx] = true; matches++; } } return matches / Math.max(1, longer.length); }
+    function parseAge(value, birthdate) { const raw = String(value || '').trim(); const match = raw.match(/\d+(?:\.\d+)?/); if (match) return String(Math.floor(Number(match[0]))); const b = Date.parse(birthdate || ''); if (!Number.isNaN(b)) { const now = new Date(); const d = new Date(b); let age = now.getFullYear() - d.getFullYear(); const m = now.getMonth() - d.getMonth(); if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--; if (age >= 0 && age <= 18) return String(age); } return ''; }
+    function birthKeyFrom(value) { const raw = String(value || '').trim(); if (!raw) return ''; const d = new Date(raw); if (!Number.isNaN(d.getTime())) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; return raw.replace(/\D/g, ''); }
+    function standardizeRow(row, source) {
+      const first = getField(row, ['first_name','first name','child_first_name','child first name','participant_first_name']);
+      const last = getField(row, ['last_name','last name','child_last_name','child last name','participant_last_name']);
+      const full = getField(row, ['name','full_name','full name','child','child_name','participant','participant_name']);
+      const parts = splitName(full);
+      const finalFirst = first || parts.first;
+      const finalLast = last || parts.last;
+      const name = [finalFirst, finalLast].filter(Boolean).join(' ') || full;
+      const birthdate = getField(row, ['birthdate','birth_date','date_of_birth','dob','birthday']);
+      const age = parseAge(getField(row, ['age','child_age']), birthdate);
+      const email = getField(row, ['home_email_address','home email address','home_email','email','parent_email','guardian_email']);
+      const phone = getField(row, ['mobile_phone_number','mobile phone number','phone','mobile','parent_phone']);
+      const family = getField(row, ['household_name','household name','family','family_name','last_name']) || finalLast;
+      return { source, first: finalFirst, last: finalLast, name, family, age, birthdate, birth_key: birthKeyFrom(birthdate), email, phone, raw: row };
+    }
+    function sameChild(a, b) {
+      if (!a || !b) return false;
+      const aLast = a.last || splitName(a.name).last, bLast = b.last || splitName(b.name).last;
+      const aFirst = a.first || splitName(a.name).first, bFirst = b.first || splitName(b.name).first;
+      const lastClose = similarity(aLast, bLast) >= 0.75;
+      const firstClose = similarity(aFirst, bFirst) >= 0.75;
+      const birthMatch = a.birth_key && b.birth_key && a.birth_key === b.birth_key;
+      if (birthMatch && lastClose) return true;
+      return firstClose && lastClose;
+    }
+    function mergeRegistrationRows() {
+      const standards = [];
+      (data.registration.familyRows || []).forEach(row => standards.push(standardizeRow(row, 'family')));
+      (data.registration.vbsRows || []).forEach(row => standards.push(standardizeRow(row, 'vbs')));
+      const merged = [];
+      standards.forEach(item => {
+        if (!item.name && !item.family) return;
+        let match = merged.find(existing => sameChild(existing._std, item));
+        if (!match) { match = { family: item.family, name: item.name, in_vbs_csv: 'No', in_families_csv: 'No', age: item.age, birthdate: item.birthdate, email: item.email, phone: item.phone, merge_note: '', _std: item }; merged.push(match); }
+        if (item.source === 'vbs') match.in_vbs_csv = 'Yes';
+        if (item.source === 'family') match.in_families_csv = 'Yes';
+        match.family = match.family || item.family; match.name = match.name || item.name; match.age = match.age || item.age; match.birthdate = match.birthdate || item.birthdate; match.email = match.email || item.email; match.phone = match.phone || item.phone;
+        match._std = { ...match._std, first: match._std.first || item.first, last: match._std.last || item.last, name: match.name, birth_key: match._std.birth_key || item.birth_key };
+        if (item.source === 'vbs' && item.source !== match._std.source) match.merge_note = 'Merged by child name, birthdate when available, and last-name similarity at 75% or higher.';
+      });
+      data.registration.roster = merged.map(({_std, ...row}) => row).sort((a,b) => String(a.family || '').localeCompare(String(b.family || '')) || String(a.name || '').localeCompare(String(b.name || '')));
+    }
+    function getVisibleRoster() {
+      const f = data.registration.filters || DEFAULT_DATA.registration.filters;
+      const q = norm(f.search);
+      return (data.registration.roster || []).map((r, index) => ({ ...r, _index: index })).filter(r => {
+        const age = Number(r.age);
+        const ageOk = !Number.isFinite(age) || (age >= Number(f.minAge || 0) && age <= Number(f.maxAge || 99));
+        const statusOk = f.status === 'All' || r.in_vbs_csv === f.status;
+        const searchOk = !q || norm([r.family,r.name,r.email,r.phone].join(' ')).includes(q);
+        return ageOk && statusOk && searchOk;
+      });
+    }
+    function updateRosterField(index, field, value) {
+      if (!data.registration.roster[index]) return;
+      data.registration.roster[index][field] = value;
+      if (field === 'in_vbs_csv') data.registration.roster[index].vbs = value;
+      saveData(true);
+      renderRegistration();
+      renderOverview();
+    }
+    function setRosterSignup(index, value) {
+      if (!data.registration.roster[index]) return;
+      data.registration.roster[index].in_vbs_csv = value;
+      data.registration.roster[index].vbs = value;
+      saveData(true);
+      renderRegistration();
+      renderOverview();
+    }
+    function removeRosterSignup(index) {
+      if (!data.registration.roster[index]) return;
+      const name = data.registration.roster[index].name || 'this child';
+      if (!confirm(`Remove the VBS signup for ${name}? This keeps the child in the roster but changes VBS to No.`)) return;
+      setRosterSignup(index, 'No');
+    }
+    function deleteRosterRecord(index) {
+      if (!data.registration.roster[index]) return;
+      const name = data.registration.roster[index].name || 'this row';
+      if (!confirm(`Delete ${name} from the merged roster?`)) return;
+      data.registration.roster.splice(index, 1);
+      saveData(true);
+      renderRegistration();
+      renderOverview();
+    }
+    function renderRegistration() {
+      const visible = getVisibleRoster();
+      const total = visible.length;
+      const reg = visible.filter(r => r.in_vbs_csv === 'Yes').length;
+      const no = total - reg;
+      const vbsOnly = visible.filter(r => r.in_vbs_csv === 'Yes' && r.in_families_csv !== 'Yes').length;
+      const statsEl = document.getElementById('registrationStats');
+      const barsEl = document.getElementById('registrationBars');
+      const sourceEl = document.getElementById('sourceBars');
+      const body = document.getElementById('rosterBody');
+      if (statsEl) statsEl.innerHTML = stat('Visible Children', total) + stat('Registered', reg) + stat('Not Registered', no) + stat('VBS Only', vbsOnly) + stat('VBS Rows', data.registration.vbsRows.length) + stat('Family Rows', data.registration.familyRows.length);
+      if (barsEl) barsEl.innerHTML = progress('Registered', reg, total, false) + progress('Not registered', no, total, true);
+      const both = visible.filter(r => r.in_vbs_csv === 'Yes' && r.in_families_csv === 'Yes').length;
+      const famOnly = visible.filter(r => r.in_vbs_csv !== 'Yes' && r.in_families_csv === 'Yes').length;
+      if (sourceEl) sourceEl.innerHTML = progress('Both files', both, total, false) + progress('Families only', famOnly, total, true) + progress('VBS only', vbsOnly, total, false);
+      if (body) body.innerHTML = visible.length ? visible.map(r => {
+        const i = r._index;
+        return `<tr>
+          <td><input value="${escapeAttr(r.family || '')}" onchange="updateRosterField(${i},'family',this.value)"></td>
+          <td><input class="name-input" value="${escapeAttr(r.name || '')}" onchange="updateRosterField(${i},'name',this.value)"></td>
+          <td><select onchange="setRosterSignup(${i},this.value)"><option value="Yes" ${r.in_vbs_csv === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${r.in_vbs_csv !== 'Yes' ? 'selected' : ''}>No</option></select></td>
+          <td><input type="number" min="0" max="18" value="${escapeAttr(r.age || '')}" onchange="updateRosterField(${i},'age',this.value)"></td>
+          <td><input value="${escapeAttr(r.email || '')}" onchange="updateRosterField(${i},'email',this.value)"></td>
+          <td><input value="${escapeAttr(r.phone || '')}" onchange="updateRosterField(${i},'phone',this.value)"></td>
+          <td><select onchange="updateRosterField(${i},'in_families_csv',this.value)"><option value="Yes" ${r.in_families_csv === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${r.in_families_csv !== 'Yes' ? 'selected' : ''}>No</option></select></td>
+          <td><select onchange="setRosterSignup(${i},this.value)"><option value="Yes" ${r.in_vbs_csv === 'Yes' ? 'selected' : ''}>Yes</option><option value="No" ${r.in_vbs_csv !== 'Yes' ? 'selected' : ''}>No</option></select></td>
+          <td><div class="roster-actions"><button class="mini-btn" onclick="setRosterSignup(${i},'Yes')">Mark Yes</button><button class="mini-btn" onclick="removeRosterSignup(${i})">Remove signup</button><button class="mini-btn" onclick="deleteRosterRecord(${i})">Delete row</button></div></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="9">No visible records.</td></tr>';
+      const status = document.getElementById('registrationStatus');
+      if (status) status.textContent = data.registration.roster.length ? `Merged roster loaded with ${data.registration.roster.length} total records. You can edit any cell, change VBS Yes/No, remove a signup, or delete a row.` : 'No registration files loaded yet.';
+    }
+    function progress(label, n, total, alt) { const p = total ? Math.round((n/total)*100) : 0; return `<div class="progress-row"><div class="bar-meta"><span>${escapeHtml(label)}</span><span>${n} (${p}%)</span></div><div class="bar-track"><div class="bar-fill ${alt ? 'alt' : ''}" style="width:${p}%"></div></div></div>`; }
+    function setRegistrationStatus(message) { const el = document.getElementById('registrationStatus'); if (el) el.textContent = message; }
+    async function runRegistrationMerge() {
+      const btn = document.getElementById('runRegistrationBtn');
+      const vbsFile = document.getElementById('vbsFile')?.files?.[0];
+      const famFile = document.getElementById('familiesFile')?.files?.[0];
+      try {
+        if (btn) { btn.disabled = true; btn.textContent = 'Merging...'; }
+        setRegistrationStatus('Reading uploaded CSV files...');
+        if (vbsFile) data.registration.vbsRows = await readCsvFile(vbsFile);
+        if (famFile) data.registration.familyRows = await readCsvFile(famFile);
+        if (!data.registration.vbsRows.length && !data.registration.familyRows.length) {
+          setRegistrationStatus('Upload at least one CSV, then run the merge.');
+          return;
+        }
+        mergeRegistrationRows();
+        saveAndRender();
+        const total = data.registration.roster.length;
+        const registered = data.registration.roster.filter(r => r.in_vbs_csv === 'Yes').length;
+        setRegistrationStatus(`Merged ${total} roster records. ${registered} children are marked as registered for VBS.`);
+        showSaved('Roster merged');
+      } catch (error) {
+        console.error(error);
+        setRegistrationStatus('The merge stopped because one CSV could not be read. Check that the file is a normal comma-separated CSV and try again.');
+        alert('Registration merge could not finish. Please check the CSV format and try again.');
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Run registration merge'; }
+      }
+    }
+    function syncRegisteredKidsToGroups() {
+      const kids = registeredKids();
+      if (!kids.length) { alert('No registered kids are loaded yet.'); return; }
+      const buckets = new Map(AGE_GROUPS.map(g => [g.id, { group: g, kids: [] }]));
+      kids.forEach(kid => { const band = ageGroupForChild(kid); buckets.get(band.id).kids.push(kid); });
+      const oldByBand = new Map((data.groups || []).map(g => [g.ageBandId || g.id, g]));
+      const slots = Math.max(1, data.leadsPerGroup + data.supportPerGroup);
+      const maxKids = Math.max(1, Number(data.kidsPerGroup || 8));
+      const next = [];
+      Array.from(buckets.values()).forEach(bucket => {
+        if (!bucket.kids.length && bucket.group.id !== 'age-review') return;
+        const chunks = [];
+        for (let i = 0; i < bucket.kids.length; i += maxKids) chunks.push(bucket.kids.slice(i, i + maxKids));
+        if (!chunks.length) chunks.push([]);
+        chunks.forEach((chunk, idx) => {
+          const suffix = chunks.length > 1 ? ` ${String.fromCharCode(65 + idx)}` : '';
+          const groupId = `${bucket.group.id}${chunks.length > 1 ? '-' + (idx + 1) : ''}`;
+          const old = oldByBand.get(groupId) || oldByBand.get(bucket.group.id) || {};
+          const days = {}; DAYS.forEach(day => days[day] = normalizeSlotArray(old?.days?.[day], slots));
+          next.push({ id: groupId, ageBandId: groupId, baseAgeBandId: bucket.group.id, animal: bucket.group.animal, color: bucket.group.color, colorHex: bucket.group.colorHex, ageBand: bucket.group.label, minAge: bucket.group.min, maxAge: bucket.group.max, name: `${bucket.group.animal}${suffix}`, kids: chunk.map(k => ({ name: k.name, age: k.age, family: k.family, email: k.email, phone: k.phone })), days });
+        });
+      });
+      data.groups = next;
+      data.kidCount = kids.length;
+      saveAndRender(); showView('groupsView'); showSaved(`Synced ${kids.length} registered kids into animal/color groups`);
+    }
+    function renderJiraEmbed() { return; }
+    function updateJiraUrlFromInline() { return; }
+    function safeRender(label, fn) { try { fn(); } catch (error) { console.error(`Render failed: ${label}`, error); } }
+    function renderAll() {
+      safeRender('sync inputs', () => syncTopInputs());
+      safeRender('ensure groups', () => ensureGroups());
+      safeRender('ensure stations', () => ensureStations());
+      safeRender('save data', () => saveData(false));
+      safeRender('fill inputs', () => fillInputs());
+      safeRender('overview', () => renderOverview());
+      safeRender('registration', () => renderRegistration());
+      safeRender('timeline', () => renderTimeline());
+      safeRender('rooms', () => renderRooms());
+      safeRender('groups', () => renderGroups());
+      safeRender('stations', () => renderStations());
+      safeRender('volunteer directory', () => renderVolunteerDirectory());
+      safeRender('people search', () => renderPeopleSearch());
+      safeRender('pages', () => renderPages());
+      safeRender('volunteer interest', () => renderVolunteerInterest());
+      safeRender('planning board', () => renderJiraEmbed());
+      safeRender('versions', () => renderVersions());
+    }
+    function saveAndRender(message = true) { renderAll(); if (message) showSaved('Saved'); }
+    function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); document.getElementById(id)?.classList.add('active'); document.querySelectorAll(`.nav-btn[data-view="${id}"], .nav-jump[data-view="${id}"]`).forEach(b => b.classList.add('active')); if (id === 'timelineView') renderTimeline(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function addRoom() { const name = prompt('Name this new room:'); if (!name || !name.trim()) return; data.rooms.push({ id: makeId(name), name: name.trim(), purpose: '', notes: '' }); saveAndRender(); showView('roomsView'); }
+    function removeRoom(i) { if (!confirm('Remove this room and its schedule blocks?')) return; const id = data.rooms[i].id; data.rooms.splice(i,1); Object.keys(data.scheduleBlocks).forEach(k => { if (k.startsWith(id + '|') || k.includes('|' + id + '|')) delete data.scheduleBlocks[k]; }); saveAndRender(); }
+    function addStation() { const name = prompt('Station name?'); if (!name || !name.trim()) return; const st = { id: makeId(name), name: name.trim(), lead: 1, support: 0, days: {} }; data.stations.push(st); data.activeStationId = st.id; saveAndRender(); openStationModal(data.stations.length - 1); }
+    function removeStation(i) { if (!confirm('Remove this station?')) return; data.stations.splice(i,1); data.activeStationId = data.stations[0]?.id || null; saveAndRender(); }
+    function removeKid(gi,ki) { if (data.groups[gi].kids.length <= 1) data.groups[gi].kids[0] = ''; else data.groups[gi].kids.splice(ki,1); saveAndRender(); }
+
+    function renderDayInputs(prefix, containerId, daysData, needed) { const container = document.getElementById(containerId); container.innerHTML = DAYS.map(day => { const slots = normalizeSlotArray(daysData?.[day], needed); return `<div class="card" style="margin-bottom:10px;"><strong>${escapeHtml(day)}</strong><div class="form-grid" style="margin-top:8px;">${slots.map((value,i) => `<div class="field"><label>${i === 0 ? 'Lead' : 'Support'} ${i+1}</label><input id="${prefix}_${day}_${i}" value="${escapeAttr(value)}" placeholder="Volunteer name" /></div>`).join('')}</div></div>`; }).join(''); }
+    function collectDayInputs(prefix, needed) { const out = {}; DAYS.forEach(day => { out[day] = []; for (let i = 0; i < needed; i++) out[day].push(document.getElementById(`${prefix}_${day}_${i}`)?.value || ''); }); return out; }
+    function openGroupModal(index) { const g = data.groups[index]; if (!g) return; document.getElementById('groupModalIndex').value = index; document.getElementById('groupModalName').value = g.name || ''; document.getElementById('groupModalAnimal').value = g.animal || ''; document.getElementById('groupModalColor').value = g.color || ''; document.getElementById('groupModalColorHex').value = g.colorHex || ''; document.getElementById('groupModalMinAge').value = g.minAge ?? g.ageMin ?? ''; document.getElementById('groupModalMaxAge').value = g.maxAge ?? g.ageMax ?? ''; document.getElementById('groupModalAgeBand').value = g.ageBand || ''; document.getElementById('groupModalKids').value = (g.kids || []).map(k => { const child = typeof k === 'object' ? k : {name:k, age:''}; return [child.name || '', child.age || ''].filter(Boolean).join(', '); }).filter(Boolean).join('\n'); renderDayInputs('groupDay', 'groupModalDays', g.days, Math.max(1, Number(data.leadsPerGroup || 0) + Number(data.supportPerGroup || 0))); document.getElementById('groupModal').classList.add('active'); }
+    function closeGroupModal() { document.getElementById('groupModal').classList.remove('active'); }
+    function saveGroupModal() { const index = Number(document.getElementById('groupModalIndex').value); const g = data.groups[index]; if (!g) return; g.name = document.getElementById('groupModalName').value || g.name; g.animal = document.getElementById('groupModalAnimal').value || g.animal || g.name; g.color = document.getElementById('groupModalColor').value || g.color || ''; g.colorHex = document.getElementById('groupModalColorHex').value || g.colorHex || ''; const min = document.getElementById('groupModalMinAge').value; const max = document.getElementById('groupModalMaxAge').value; g.minAge = min === '' ? '' : Number(min); g.maxAge = max === '' ? '' : Number(max); g.ageBand = document.getElementById('groupModalAgeBand').value || g.ageBand || ''; g.kids = document.getElementById('groupModalKids').value.split(/\n+/).map(line => { const parts = line.split(',').map(x => x.trim()).filter(Boolean); return { name: parts[0] || '', age: parts[1] || '' }; }).filter(k => k.name); const needed = Math.max(1, Number(data.leadsPerGroup || 0) + Number(data.supportPerGroup || 0)); g.days = collectDayInputs('groupDay', needed); closeGroupModal(); saveAndRender(); }
+    function openStationModal(index) { const s = data.stations[index]; if (!s) return; document.getElementById('stationModalIndex').value = index; document.getElementById('stationModalName').value = s.name || ''; document.getElementById('stationModalLead').value = s.lead ?? 1; document.getElementById('stationModalSupport').value = s.support ?? 0; renderDayInputs('stationDay', 'stationModalDays', s.days, Math.max(1, Number(s.lead || 0) + Number(s.support || 0))); document.getElementById('stationModal').classList.add('active'); }
+    function closeStationModal() { document.getElementById('stationModal').classList.remove('active'); }
+    function saveStationModal() { const index = Number(document.getElementById('stationModalIndex').value); const s = data.stations[index]; if (!s) return; s.name = document.getElementById('stationModalName').value || s.name; s.lead = Math.max(0, Number(document.getElementById('stationModalLead').value || 0)); s.support = Math.max(0, Number(document.getElementById('stationModalSupport').value || 0)); const needed = Math.max(1, s.lead + s.support); s.days = collectDayInputs('stationDay', needed); closeStationModal(); saveAndRender(); }
+
+    function openBlockModal(roomId, time) { const room = data.rooms.find(r => r.id === roomId), block = getScheduleBlock(roomId, time); document.getElementById('modalOriginalRoomId').value = roomId; document.getElementById('modalOriginalTime').value = time; document.getElementById('modalRoomSelect').innerHTML = data.rooms.map(r => `<option value="${escapeAttr(r.id)}" ${r.id === roomId ? 'selected' : ''}>${escapeHtml(r.name)}</option>`).join(''); document.getElementById('modalStartTime').value = block.startTime || time; document.getElementById('modalEndTime').value = block.endTime || minToTime(timeToMin(time) + Number(data.scheduleSettings.interval || 30)); document.getElementById('modalActivity').value = block.activity || ''; document.getElementById('modalNotes').value = block.notes || ''; document.getElementById('blockModal').classList.add('active'); }
+    function closeBlockModal() { document.getElementById('blockModal').classList.remove('active'); }
+    function saveBlockModal() { const originalRoomId = document.getElementById('modalOriginalRoomId').value, originalTime = document.getElementById('modalOriginalTime').value; const roomId = document.getElementById('modalRoomSelect').value; const startTime = document.getElementById('modalStartTime').value || originalTime; const endTime = document.getElementById('modalEndTime').value || minToTime(timeToMin(startTime) + Number(data.scheduleSettings.interval || 30)); delete data.scheduleBlocks[getBlockKey(originalRoomId, originalTime)]; delete data.scheduleBlocks[getLegacyBlockKey(originalRoomId, originalTime)]; data.scheduleBlocks[getBlockKey(roomId, startTime)] = { startTime, endTime, activity: document.getElementById('modalActivity').value, notes: document.getElementById('modalNotes').value }; closeBlockModal(); saveAndRender(); }
+    function clearBlockModal() { const roomId = document.getElementById('modalOriginalRoomId').value, time = document.getElementById('modalOriginalTime').value; delete data.scheduleBlocks[getBlockKey(roomId, time)]; delete data.scheduleBlocks[getLegacyBlockKey(roomId, time)]; closeBlockModal(); saveAndRender(); }
+    function addPage() { const title = prompt('New page title?') || 'New Planning Page'; const p = { id: makeId(title), title, status: 'Draft', body: 'Start writing this page here.' }; data.pages.push(p); data.activePageId = p.id; saveAndRender(); showView('pagesView'); }
+    function duplicatePage(i) { const p = clone(data.pages[i]); p.id = makeId(p.title); p.title += ' Copy'; data.pages.push(p); data.activePageId = p.id; saveAndRender(); }
+    function removePage(i) { if (!confirm('Remove this page?')) return; data.pages.splice(i,1); data.activePageId = data.pages[0]?.id || null; saveAndRender(); }
+    function copyMondayToRest() { data.groups.forEach(g => ['Tuesday','Wednesday','Thursday'].forEach(day => g.days[day] = [...g.days.Monday])); data.stations.forEach(s => ['Tuesday','Wednesday','Thursday'].forEach(day => s.days[day] = [...s.days.Monday])); saveAndRender(); }
+    function resetDashboard() { if (!confirm('Reset the dashboard and clear saved changes?')) return; data = clone(DEFAULT_DATA); saveData(false); createCheckpoint('Reset dashboard', false); saveAndRender(); }
+    function csvEscape(v) { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }
+    function downloadTextFile(name, content, type) { const blob = new Blob([content], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
+    function rowsToCsv(rows) { return rows.map(r => r.map(csvEscape).join(',')).join('\n'); }
+    function exportJson() { downloadTextFile('house-kids-vbs-integrated-data.json', JSON.stringify(data, null, 2), 'application/json;charset=utf-8;'); }
+    function exportHtml() { saveData(false); let html = document.documentElement.outerHTML; html = html.replace(/const DEFAULT_DATA = [\s\S]*?;\n\s*let data = loadData\(\);/, 'const DEFAULT_DATA = ' + JSON.stringify(data, null, 6) + ';\n\n    let data = loadData();'); downloadTextFile('house-kids-vbs-integrated-website.html', '<!DOCTYPE html>\n' + html, 'text/html;charset=utf-8;'); }
+    function exportCsvs() { const kids = [['Group','Kid Name','Age','Animal','Color']]; data.groups.forEach(g => g.kids.forEach(k => { const child = typeof k === 'object' ? k : {name:k, age:''}; if (String(child.name||'').trim()) kids.push([g.name,child.name,child.age||'',g.animal||'',g.color||'']); })); const vols = [['Volunteer','Day','Assignment Type','Assignment Name','Role','Time']]; uniqueVolunteerMap().forEach(v => v.assignments.forEach(a => vols.push([v.name,a.day,a.type,a.name,a.role,a.time]))); const rooms = [['Room','Purpose','Notes']]; data.rooms.forEach(r => rooms.push([r.name,r.purpose,r.notes])); downloadTextFile('vbs_kids_groups.csv', rowsToCsv(kids), 'text/csv;charset=utf-8;'); downloadTextFile('vbs_volunteers.csv', rowsToCsv(vols), 'text/csv;charset=utf-8;'); downloadTextFile('vbs_rooms.csv', rowsToCsv(rooms), 'text/csv;charset=utf-8;'); const interests = [['Name','Last Contact','Commitment','Notes','Followup Needed','Status','Days','Assignment Type','Assignment Id','Role'], ...(data.volunteerInterest||[]).map(v => [v.name,v.lastContact,v.commitment,v.notes,v.followup,v.status,(v.days||[]).join('; '),v.assignmentType,v.assignmentId,v.role])]; downloadTextFile('vbs_volunteer_interest.csv', rowsToCsv(interests), 'text/csv;charset=utf-8;'); downloadRoster(); showSaved('Exported'); }
+    function downloadRoster() { const rows = [['Family','Name','VBS','Age','Email','Phone','In Families CSV','In VBS CSV'], ...getVisibleRoster().map(r => [r.family,r.name,r.in_vbs_csv,r.age,r.email,r.phone,r.in_families_csv,r.in_vbs_csv])]; downloadTextFile('vbs_merged_roster.csv', rowsToCsv(rows), 'text/csv;charset=utf-8;'); }
+    function importJson(file) { if (!file) return; const reader = new FileReader(); reader.onload = e => { try { data = mergeData(JSON.parse(e.target.result)); createCheckpoint('Imported JSON', false); saveAndRender(); } catch { alert('That file could not be imported.'); } }; reader.readAsText(file); }
+
+    document.querySelectorAll('.nav-btn[data-view], .nav-jump[data-view]').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view))); document.getElementById('planningBoardBtn')?.addEventListener('click', openJeraSchedule);
+    document.getElementById('quickSaveBtn').addEventListener('click', () => saveAndRender()); document.getElementById('saveBtn').addEventListener('click', () => saveAndRender()); document.getElementById('copyMondayBtn').addEventListener('click', copyMondayToRest); document.getElementById('addPageBtn').addEventListener('click', addPage); document.getElementById('addPageBtn2').addEventListener('click', addPage); document.getElementById('addRoomBtn').addEventListener('click', addRoom); document.getElementById('addRoomBtn2').addEventListener('click', addRoom); document.getElementById('addStationBtn').addEventListener('click', addStation); document.getElementById('exportJsonBtn').addEventListener('click', exportJson); document.getElementById('exportCsvBtn').addEventListener('click', exportCsvs); document.getElementById('exportHtmlBtn').addEventListener('click', exportHtml); document.getElementById('checkpointBtn').addEventListener('click', () => createCheckpoint('Manual checkpoint')); document.getElementById('checkpointBtn2').addEventListener('click', () => createCheckpoint('Manual checkpoint')); document.getElementById('exportHistoryBtn').addEventListener('click', exportHistory); document.getElementById('openJeraBtn').addEventListener('click', openJeraSchedule); document.getElementById('openJeraBtn2')?.addEventListener('click', openJeraSchedule); document.getElementById('refreshJiraBtn')?.addEventListener('click', updateJiraUrlFromInline); document.getElementById('addVolunteerInterestBtn')?.addEventListener('click', addVolunteerInterest); document.getElementById('syncRegisteredKidsBtn2')?.addEventListener('click', syncRegisteredKidsToGroups); document.getElementById('printBtn').addEventListener('click', () => window.print()); document.getElementById('resetBtn').addEventListener('click', resetDashboard); document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click()); document.getElementById('importFile').addEventListener('change', e => { importJson(e.target.files[0]); e.target.value = ''; }); document.getElementById('runRegistrationBtn').addEventListener('click', runRegistrationMerge); document.getElementById('syncRegisteredKidsBtn').addEventListener('click', syncRegisteredKidsToGroups); document.getElementById('downloadRosterBtn').addEventListener('click', downloadRoster); ['vbsFile','familiesFile'].forEach(id => document.getElementById(id)?.addEventListener('change', async () => { const vbsFile = document.getElementById('vbsFile')?.files?.[0]; const famFile = document.getElementById('familiesFile')?.files?.[0]; try { if (id === 'vbsFile' && vbsFile) data.registration.vbsRows = await readCsvFile(vbsFile); if (id === 'familiesFile' && famFile) data.registration.familyRows = await readCsvFile(famFile); saveData(false); renderRegistration(); renderOverview(); const vbsName = vbsFile?.name || 'no VBS CSV selected'; const famName = famFile?.name || 'no families CSV selected'; setRegistrationStatus(`Loaded file selection: ${vbsName}; ${famName}. VBS rows: ${data.registration.vbsRows.length}. Family rows: ${data.registration.familyRows.length}. Click Run registration merge.`); } catch (error) { console.error(error); setRegistrationStatus('This CSV could not be read. Export it again as a plain CSV and upload it again.'); } }));
+    ['eventTitleInput','kidCountInput','kidsPerGroupInput','leadsPerGroupInput','supportPerGroupInput','teamPrefixInput','editorNameInput','jeraUrlInput','jiraInlineUrlInput','scheduleDayInput','scheduleStartInput','scheduleEndInput','scheduleIntervalInput','scheduleTimezoneInput'].forEach(id => document.getElementById(id)?.addEventListener('input', () => { clearTimeout(window.refreshTimer); window.refreshTimer = setTimeout(() => saveAndRender(false), 250); }));
+    ['scheduleDayInput','scheduleStartInput','scheduleEndInput','scheduleIntervalInput','scheduleTimezoneInput'].forEach(id => document.getElementById(id)?.addEventListener('change', () => saveAndRender(false)));
+    ['minAgeInput','maxAgeInput','registrationStatusFilter','registrationSearchInput'].forEach(id => document.getElementById(id).addEventListener('input', () => { data.registration.filters = { minAge: Number(document.getElementById('minAgeInput').value || 0), maxAge: Number(document.getElementById('maxAgeInput').value || 99), status: document.getElementById('registrationStatusFilter').value, search: document.getElementById('registrationSearchInput').value }; saveData(false); renderRegistration(); renderOverview(); }));
+    document.getElementById('volunteerCsvFile')?.addEventListener('change', e => { importVolunteerCsvFile(e.target.files[0]); e.target.value = ''; }); document.getElementById('personSearch').addEventListener('input', renderPeopleSearch);
+    fillInputs(); ensureGroups(); ensureStations(); renderAll(); showSaved('Ready'); setInterval(() => saveData(false), 60000);
+  </script>
+
+  <!-- Optional cloud sync for shared editing. This works on static hosts such as Netlify, Vercel, GitHub Pages, WordPress, or RPubs, but RPubs itself does not store user edits. For collaborator auto-updates, enable Firebase below. -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script>
+    /*
+      HOW TO TURN ON SHARED EDITING
+      1. Create a Firebase project.
+      2. Create a Cloud Firestore database.
+      3. Copy your Web App Firebase config below.
+      4. Change FIREBASE_SYNC_ENABLED from false to true.
+      5. Publish this HTML file on Netlify, Vercel, GitHub Pages, WordPress, or another static host.
+
+      Important: configure Firestore rules before sharing the link publicly.
+    */
+    const FIREBASE_SYNC_ENABLED = true;
+    const FIREBASE_COLLECTION = 'houseKidsVbsDashboards';
+    const FIREBASE_DOCUMENT_ID = 'house-kids-vbs-2026';
+    const FIREBASE_CONFIG = {
+      apiKey: 'AIzaSyDzhnCPSAA0nVWNC0SWb6_vCIa5hYm9Kgk',
+      authDomain: 'vbsdash-43f18.firebaseapp.com',
+      projectId: 'vbsdash-43f18',
+      storageBucket: 'vbsdash-43f18.firebasestorage.app',
+      messagingSenderId: '718569780585',
+      appId: '1:718569780585:web:1939058bd7cd7e2751f9f8',
+      measurementId: 'G-ENK2M539Z8'
+    };
+
+    (function setupCloudSync() {
+      const statusEl = () => document.getElementById('cloudSyncStatus');
+      function setCloudStatus(title, body) {
+        const el = statusEl();
+        if (!el) return;
+        el.innerHTML = `<div class="stack-item"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(body)}</span></div>`;
+      }
+
+      if (!FIREBASE_SYNC_ENABLED) {
+        setCloudStatus('Local backup only', 'Firebase is currently disabled. Your edits save in this browser. To sync with a collaborator, paste your Firebase config and set FIREBASE_SYNC_ENABLED to true.');
+        return;
+      }
+
+      if (!window.firebase || !FIREBASE_CONFIG.projectId || FIREBASE_CONFIG.projectId.includes('PASTE_')) {
+        setCloudStatus('Firebase setup incomplete', 'Paste your Firebase config into the HTML before turning sync on.');
+        return;
+      }
+
+      let suppressRemoteWrite = false;
+      let saveTimer = null;
+      const originalSaveData = saveData;
+
+      try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const db = firebase.firestore();
+        const docRef = db.collection(FIREBASE_COLLECTION).doc(FIREBASE_DOCUMENT_ID);
+
+        async function writeCloud(show = false) {
+          try {
+            await docRef.set({
+              data: clone(data),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedBy: getEditorName()
+            }, { merge: true });
+            setCloudStatus('Live sync on', 'Saved to Firebase. Collaborators with this page open will receive the update automatically.');
+            if (show) showSaved('Saved + synced');
+          } catch (error) {
+            console.error('Cloud save failed:', error);
+            setCloudStatus('Cloud save failed', error.message || 'Check Firebase config and Firestore rules. Local backup was still saved.');
+            if (show) showSaved('Saved locally');
+          }
+        }
+
+        saveData = function cloudAwareSave(show = false) {
+          syncTopInputs();
+          originalSaveData(false);
+          if (suppressRemoteWrite) {
+            if (show) showSaved('Saved locally');
+            return;
+          }
+          clearTimeout(saveTimer);
+          saveTimer = setTimeout(() => writeCloud(show), 500);
+        };
+
+        docRef.onSnapshot(snapshot => {
+          if (!snapshot.exists) {
+            writeCloud(false);
+            return;
+          }
+          const remote = snapshot.data()?.data;
+          if (!remote) return;
+          suppressRemoteWrite = true;
+          data = mergeData(remote);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          renderAll();
+          suppressRemoteWrite = false;
+          setCloudStatus('Live sync on', 'Loaded the newest shared plan from Firebase.');
+          showSaved('Synced');
+        }, error => {
+          console.error('Cloud listener failed:', error);
+          setCloudStatus('Cloud listener failed', error.message || 'Check Firebase config and Firestore rules.');
+        });
+
+        setCloudStatus('Connecting to Firebase', 'Trying to load the shared dashboard document.');
+      } catch (error) {
+        console.error('Firebase setup failed:', error);
+        setCloudStatus('Firebase setup failed', error.message || 'Check your Firebase config.');
+      }
+    })();
+  </script>
+
+</body>
+</html>
