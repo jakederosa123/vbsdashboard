@@ -283,3 +283,35 @@ textarea:focus {
     padding: 18px;
   }
 }
+
+
+.saveControls {
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.saveControls .saveBadge {
+  min-width: 0;
+  width: 100%;
+}
+
+.saveControls button {
+  width: 100%;
+}
+
+.lastSaved {
+  margin: -4px 0 0;
+  text-align: center;
+  color: #566050;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .saveControls {
+    width: 100%;
+  }
+}

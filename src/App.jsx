@@ -2,42 +2,10 @@ import { useMemo, useState } from "react";
 import { useDashboardAutosave } from "./useDashboardAutosave";
 
 const defaultDashboardData = {
-  registrations: [
-    {
-      id: "example-child-1",
-      childName: "Example Child",
-      age: "6",
-      group: "Monkeys",
-      registered: true,
-      notes: "Sample row. You can delete this.",
-    },
-  ],
-  volunteers: [
-    {
-      id: "example-volunteer-1",
-      name: "Example Volunteer",
-      role: "Station Helper",
-      day: "Monday",
-      confirmed: false,
-    },
-  ],
-  rooms: [
-    {
-      id: "example-room-1",
-      name: "Elementary Room",
-      capacity: "25",
-      notes: "Main teaching room",
-    },
-  ],
-  schedule: [
-    {
-      id: "example-schedule-1",
-      time: "9:00 AM",
-      activity: "Check-in",
-      location: "Lobby",
-      leader: "",
-    },
-  ],
+  registrations: [],
+  volunteers: [],
+  rooms: [],
+  schedule: [],
   planningNotes: "",
 };
 
@@ -49,8 +17,14 @@ function makeId() {
 }
 
 export default function App() {
-  const { dashboardData, setDashboardData, saveStatus } =
-    useDashboardAutosave(defaultDashboardData);
+  const {
+    dashboardData,
+    setDashboardData,
+    saveStatus,
+    forceSaveNow,
+    resetDashboard,
+    lastSavedAt,
+  } = useDashboardAutosave(defaultDashboardData);
 
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -72,7 +46,7 @@ export default function App() {
   function updateField(section, id, field, value) {
     setDashboardData((current) => ({
       ...current,
-      [section]: current[section].map((item) =>
+      [section]: (current[section] || []).map((item) =>
         item.id === id ? { ...item, [field]: value } : item
       ),
     }));
@@ -82,7 +56,7 @@ export default function App() {
     setDashboardData((current) => ({
       ...current,
       registrations: [
-        ...current.registrations,
+        ...(current.registrations || []),
         {
           id: makeId(),
           childName: "",
@@ -98,7 +72,7 @@ export default function App() {
   function deleteRegistration(id) {
     setDashboardData((current) => ({
       ...current,
-      registrations: current.registrations.filter((item) => item.id !== id),
+      registrations: (current.registrations || []).filter((item) => item.id !== id),
     }));
   }
 
@@ -106,7 +80,7 @@ export default function App() {
     setDashboardData((current) => ({
       ...current,
       volunteers: [
-        ...current.volunteers,
+        ...(current.volunteers || []),
         {
           id: makeId(),
           name: "",
@@ -121,7 +95,7 @@ export default function App() {
   function deleteVolunteer(id) {
     setDashboardData((current) => ({
       ...current,
-      volunteers: current.volunteers.filter((item) => item.id !== id),
+      volunteers: (current.volunteers || []).filter((item) => item.id !== id),
     }));
   }
 
@@ -129,7 +103,7 @@ export default function App() {
     setDashboardData((current) => ({
       ...current,
       rooms: [
-        ...current.rooms,
+        ...(current.rooms || []),
         {
           id: makeId(),
           name: "",
@@ -143,7 +117,7 @@ export default function App() {
   function deleteRoom(id) {
     setDashboardData((current) => ({
       ...current,
-      rooms: current.rooms.filter((item) => item.id !== id),
+      rooms: (current.rooms || []).filter((item) => item.id !== id),
     }));
   }
 
@@ -151,7 +125,7 @@ export default function App() {
     setDashboardData((current) => ({
       ...current,
       schedule: [
-        ...current.schedule,
+        ...(current.schedule || []),
         {
           id: makeId(),
           time: "",
@@ -166,7 +140,7 @@ export default function App() {
   function deleteScheduleBlock(id) {
     setDashboardData((current) => ({
       ...current,
-      schedule: current.schedule.filter((item) => item.id !== id),
+      schedule: (current.schedule || []).filter((item) => item.id !== id),
     }));
   }
 
@@ -188,8 +162,15 @@ export default function App() {
           </p>
         </div>
 
-        <div className={`saveBadge ${saveStatus === "Saved" ? "saved" : ""}`}>
-          {saveStatus}
+        <div className="saveControls">
+          <div className={`saveBadge ${saveStatus === "Saved" ? "saved" : ""}`}>
+            {saveStatus}
+          </div>
+          {lastSavedAt && <p className="lastSaved">Last saved: {lastSavedAt}</p>}
+          <button type="button" onClick={forceSaveNow}>Save Now</button>
+          <button type="button" className="danger" onClick={resetDashboard}>
+            Clear Dashboard
+          </button>
         </div>
       </header>
 
@@ -200,6 +181,7 @@ export default function App() {
               key={tab}
               className={activeTab === tab ? "active" : ""}
               onClick={() => setActiveTab(tab)}
+              type="button"
             >
               {tab[0].toUpperCase() + tab.slice(1)}
             </button>
@@ -235,10 +217,9 @@ export default function App() {
           </div>
 
           <div className="helpBox">
-            <h3>Autosave check</h3>
+            <h3>Delete test</h3>
             <p>
-              Make a change anywhere on the dashboard. Wait until the save badge says
-              <strong> Saved</strong>. Then refresh the page. The change should still be there.
+              Delete a row, click <strong>Save Now</strong>, refresh the page, and the deleted row should stay gone. This version does not use a live Firebase listener, so old Firebase data should not pop back onto the screen after a delete.
             </p>
           </div>
         </section>
@@ -248,7 +229,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Registrations</h2>
-            <button onClick={addRegistration}>Add Child</button>
+            <button type="button" onClick={addRegistration}>Add Child</button>
           </div>
 
           <div className="table">
@@ -261,24 +242,24 @@ export default function App() {
               <span></span>
             </div>
 
-            {dashboardData.registrations.map((item) => (
+            {(dashboardData.registrations || []).map((item) => (
               <div className="tableRow registrationsGrid" key={item.id}>
                 <input
-                  value={item.childName}
+                  value={item.childName || ""}
                   onChange={(event) =>
                     updateField("registrations", item.id, "childName", event.target.value)
                   }
                   placeholder="Child name"
                 />
                 <input
-                  value={item.age}
+                  value={item.age || ""}
                   onChange={(event) =>
                     updateField("registrations", item.id, "age", event.target.value)
                   }
                   placeholder="Age"
                 />
                 <input
-                  value={item.group}
+                  value={item.group || ""}
                   onChange={(event) =>
                     updateField("registrations", item.id, "group", event.target.value)
                   }
@@ -287,7 +268,7 @@ export default function App() {
                 <label className="checkboxLabel">
                   <input
                     type="checkbox"
-                    checked={item.registered}
+                    checked={Boolean(item.registered)}
                     onChange={(event) =>
                       updateField("registrations", item.id, "registered", event.target.checked)
                     }
@@ -295,13 +276,13 @@ export default function App() {
                   Yes
                 </label>
                 <input
-                  value={item.notes}
+                  value={item.notes || ""}
                   onChange={(event) =>
                     updateField("registrations", item.id, "notes", event.target.value)
                   }
                   placeholder="Notes"
                 />
-                <button className="danger" onClick={() => deleteRegistration(item.id)}>
+                <button type="button" className="danger" onClick={() => deleteRegistration(item.id)}>
                   Delete
                 </button>
               </div>
@@ -314,7 +295,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Volunteers</h2>
-            <button onClick={addVolunteer}>Add Volunteer</button>
+            <button type="button" onClick={addVolunteer}>Add Volunteer</button>
           </div>
 
           <div className="table">
@@ -326,24 +307,24 @@ export default function App() {
               <span></span>
             </div>
 
-            {dashboardData.volunteers.map((item) => (
+            {(dashboardData.volunteers || []).map((item) => (
               <div className="tableRow volunteersGrid" key={item.id}>
                 <input
-                  value={item.name}
+                  value={item.name || ""}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "name", event.target.value)
                   }
                   placeholder="Volunteer name"
                 />
                 <input
-                  value={item.role}
+                  value={item.role || ""}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "role", event.target.value)
                   }
                   placeholder="Role"
                 />
                 <input
-                  value={item.day}
+                  value={item.day || ""}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "day", event.target.value)
                   }
@@ -352,14 +333,14 @@ export default function App() {
                 <label className="checkboxLabel">
                   <input
                     type="checkbox"
-                    checked={item.confirmed}
+                    checked={Boolean(item.confirmed)}
                     onChange={(event) =>
                       updateField("volunteers", item.id, "confirmed", event.target.checked)
                     }
                   />
                   Yes
                 </label>
-                <button className="danger" onClick={() => deleteVolunteer(item.id)}>
+                <button type="button" className="danger" onClick={() => deleteVolunteer(item.id)}>
                   Delete
                 </button>
               </div>
@@ -372,7 +353,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Rooms</h2>
-            <button onClick={addRoom}>Add Room</button>
+            <button type="button" onClick={addRoom}>Add Room</button>
           </div>
 
           <div className="table">
@@ -383,26 +364,26 @@ export default function App() {
               <span></span>
             </div>
 
-            {dashboardData.rooms.map((item) => (
+            {(dashboardData.rooms || []).map((item) => (
               <div className="tableRow roomsGrid" key={item.id}>
                 <input
-                  value={item.name}
+                  value={item.name || ""}
                   onChange={(event) => updateField("rooms", item.id, "name", event.target.value)}
                   placeholder="Room name"
                 />
                 <input
-                  value={item.capacity}
+                  value={item.capacity || ""}
                   onChange={(event) =>
                     updateField("rooms", item.id, "capacity", event.target.value)
                   }
                   placeholder="Capacity"
                 />
                 <input
-                  value={item.notes}
+                  value={item.notes || ""}
                   onChange={(event) => updateField("rooms", item.id, "notes", event.target.value)}
                   placeholder="Notes"
                 />
-                <button className="danger" onClick={() => deleteRoom(item.id)}>
+                <button type="button" className="danger" onClick={() => deleteRoom(item.id)}>
                   Delete
                 </button>
               </div>
@@ -415,7 +396,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Schedule</h2>
-            <button onClick={addScheduleBlock}>Add Schedule Block</button>
+            <button type="button" onClick={addScheduleBlock}>Add Schedule Block</button>
           </div>
 
           <div className="table">
@@ -427,33 +408,33 @@ export default function App() {
               <span></span>
             </div>
 
-            {dashboardData.schedule.map((item) => (
+            {(dashboardData.schedule || []).map((item) => (
               <div className="tableRow scheduleGrid" key={item.id}>
                 <input
-                  value={item.time}
+                  value={item.time || ""}
                   onChange={(event) => updateField("schedule", item.id, "time", event.target.value)}
                   placeholder="9:00 AM"
                 />
                 <input
-                  value={item.activity}
+                  value={item.activity || ""}
                   onChange={(event) =>
                     updateField("schedule", item.id, "activity", event.target.value)
                   }
                   placeholder="Activity"
                 />
                 <input
-                  value={item.location}
+                  value={item.location || ""}
                   onChange={(event) =>
                     updateField("schedule", item.id, "location", event.target.value)
                   }
                   placeholder="Location"
                 />
                 <input
-                  value={item.leader}
+                  value={item.leader || ""}
                   onChange={(event) => updateField("schedule", item.id, "leader", event.target.value)}
                   placeholder="Leader"
                 />
-                <button className="danger" onClick={() => deleteScheduleBlock(item.id)}>
+                <button type="button" className="danger" onClick={() => deleteScheduleBlock(item.id)}>
                   Delete
                 </button>
               </div>
@@ -467,7 +448,7 @@ export default function App() {
           <h2>Planning Notes</h2>
           <textarea
             className="notesBox"
-            value={dashboardData.planningNotes}
+            value={dashboardData.planningNotes || ""}
             onChange={(event) => updatePlanningNotes(event.target.value)}
             placeholder="Write planning notes here. These notes autosave to Firebase."
           />

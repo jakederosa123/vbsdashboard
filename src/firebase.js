@@ -1,12 +1,5 @@
 import { initializeApp } from "firebase/app";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  onSnapshot,
-  serverTimestamp,
-} from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,45 +13,45 @@ const firebaseConfig = {
 export const FIREBASE_SYNC_ENABLED =
   import.meta.env.VITE_FIREBASE_SYNC_ENABLED === "true";
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+let app = null;
+let db = null;
+
+if (FIREBASE_SYNC_ENABLED) {
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+}
+
+export { db };
 
 const DASHBOARD_DOC_PATH = ["dashboards", "vbsdashboard"];
 
+function getDashboardRef() {
+  if (!FIREBASE_SYNC_ENABLED || !db) return null;
+  return doc(db, ...DASHBOARD_DOC_PATH);
+}
+
 export async function loadDashboardData() {
-  if (!FIREBASE_SYNC_ENABLED) return null;
+  const ref = getDashboardRef();
+  if (!ref) return null;
 
-  const ref = doc(db, ...DASHBOARD_DOC_PATH);
   const snap = await getDoc(ref);
-
   if (!snap.exists()) return null;
 
   return snap.data();
 }
 
 export async function saveDashboardData(data) {
-  if (!FIREBASE_SYNC_ENABLED) return;
+  const ref = getDashboardRef();
+  if (!ref) return;
 
-  const ref = doc(db, ...DASHBOARD_DOC_PATH);
-
-  await setDoc(
-    ref,
-    {
-      ...data,
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true }
-  );
-}
-
-export function listenToDashboardData(callback) {
-  if (!FIREBASE_SYNC_ENABLED) return () => {};
-
-  const ref = doc(db, ...DASHBOARD_DOC_PATH);
-
-  return onSnapshot(ref, (snap) => {
-    if (snap.exists()) {
-      callback(snap.data());
-    }
+  // Important: this is NOT merge:true.
+  // It replaces the saved dashboard document, so deleted rows do not come back.
+  await setDoc(ref, {
+    registrations: data.registrations || [],
+    volunteers: data.volunteers || [],
+    rooms: data.rooms || [],
+    schedule: data.schedule || [],
+    planningNotes: data.planningNotes || "",
+    updatedAt: serverTimestamp(),
   });
 }

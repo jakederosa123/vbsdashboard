@@ -1,91 +1,160 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  loadDashboardData,
-  saveDashboardData,
-  listenToDashboardData,
-  FIREBASE_SYNC_ENABLED,
-} from "./firebase";
+import { loadDashboardData, saveDashboardData, FIREBASE_SYNC_ENABLED } from "./firebase";
+
+const LOCAL_BACKUP_KEY = "vbsdashboard-local-backup";
+
+function normalizeDashboardData(data, fallback) {
+  return {
+    registrations: Array.isArray(data?.registrations) ? data.registrations : fallback.registrations || [],
+    volunteers: Array.isArray(data?.volunteers) ? data.volunteers : fallback.volunteers || [],
+    rooms: Array.isArray(data?.rooms) ? data.rooms : fallback.rooms || [],
+    schedule: Array.isArray(data?.schedule) ? data.schedule : fallback.schedule || [],
+    planningNotes: typeof data?.planningNotes === "string" ? data.planningNotes : fallback.planningNotes || "",
+  };
+}
+
+function loadLocalBackup(fallback) {
+  try {
+    const raw = window.localStorage.getItem(LOCAL_BACKUP_KEY);
+    if (!raw) return null;
+    return normalizeDashboardData(JSON.parse(raw), fallback);
+  } catch (error) {
+    console.warn("Could not read local dashboard backup:", error);
+    return null;
+  }
+}
+
+function saveLocalBackup(data) {
+  try {
+    window.localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.warn("Could not write local dashboard backup:", error);
+  }
+}
 
 export function useDashboardAutosave(initialData) {
-  const [dashboardData, setDashboardData] = useState(initialData);
+  const cleanInitialData = normalizeDashboardData(initialData, initialData);
+  const [dashboardData, setDashboardData] = useState(cleanInitialData);
   const [saveStatus, setSaveStatus] = useState(
     FIREBASE_SYNC_ENABLED ? "Loading saved data..." : "Firebase sync is off"
   );
+  const [lastSavedAt, setLastSavedAt] = useState("");
 
-  const loadedRef = useRef(false);
+  const hasLoadedRef = useRef(false);
   const saveTimerRef = useRef(null);
-  const firstRemoteLoadRef = useRef(true);
+  const latestDataRef = useRef(cleanInitialData);
 
   useEffect(() => {
-    async function loadSavedData() {
-      try {
-        const saved = await loadDashboardData();
+    latestDataRef.current = dashboardData;
+  }, [dashboardData]);
 
-        if (saved) {
-          setDashboardData((current) => ({
-            ...current,
-            ...saved,
-          }));
-          setSaveStatus("Loaded saved dashboard");
-        } else {
-          setSaveStatus("No saved dashboard yet");
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadInitialData() {
+      const localBackup = loadLocalBackup(cleanInitialData);
+
+      try {
+        if (!FIREBASE_SYNC_ENABLED) {
+          if (localBackup && !cancelled) {
+            setDashboardData(localBackup);
+          }
+          setSaveStatus("Local backup only");
+          hasLoadedRef.current = true;
+          return;
         }
 
-        loadedRef.current = true;
+        const saved = await loadDashboardData();
+        if (cancelled) return;
+
+        if (saved) {
+          const cleanSaved = normalizeDashboardData(saved, cleanInitialData);
+          setDashboardData(cleanSaved);
+          saveLocalBackup(cleanSaved);
+          setSaveStatus("Loaded saved dashboard");
+        } else if (localBackup) {
+          setDashboardData(localBackup);
+          await saveDashboardData(localBackup);
+          setSaveStatus("Restored local backup");
+        } else {
+          setDashboardData(cleanInitialData);
+          await saveDashboardData(cleanInitialData);
+          setSaveStatus("Created blank dashboard");
+        }
       } catch (error) {
         console.error("Firebase load error:", error);
-        setSaveStatus("Could not load saved dashboard");
-        loadedRef.current = true;
+        if (localBackup && !cancelled) {
+          setDashboardData(localBackup);
+          setSaveStatus("Firebase failed, using local backup");
+        } else if (!cancelled) {
+          setSaveStatus("Could not load saved dashboard");
+        }
+      } finally {
+        if (!cancelled) {
+          hasLoadedRef.current = true;
+        }
       }
     }
 
-    loadSavedData();
-
-    const unsubscribe = listenToDashboardData((saved) => {
-      if (!saved) return;
-
-      if (firstRemoteLoadRef.current) {
-        firstRemoteLoadRef.current = false;
-        return;
-      }
-
-      setDashboardData((current) => ({
-        ...current,
-        ...saved,
-      }));
-
-      setSaveStatus("Synced");
-    });
+    loadInitialData();
 
     return () => {
-      unsubscribe();
+      cancelled = true;
       clearTimeout(saveTimerRef.current);
     };
   }, []);
 
+  async function saveNow(dataToSave = latestDataRef.current) {
+    const cleanData = normalizeDashboardData(dataToSave, cleanInitialData);
+    saveLocalBackup(cleanData);
+
+    if (!FIREBASE_SYNC_ENABLED) {
+      setSaveStatus("Saved locally only");
+      setLastSavedAt(new Date().toLocaleTimeString());
+      return;
+    }
+
+    try {
+      setSaveStatus("Saving...");
+      await saveDashboardData(cleanData);
+      setSaveStatus("Saved");
+      setLastSavedAt(new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error("Firebase save error:", error);
+      setSaveStatus("Save failed, saved locally");
+    }
+  }
+
   useEffect(() => {
-    if (!loadedRef.current) return;
-    if (!FIREBASE_SYNC_ENABLED) return;
+    if (!hasLoadedRef.current) return;
 
     clearTimeout(saveTimerRef.current);
+    setSaveStatus("Unsaved changes");
 
-    saveTimerRef.current = setTimeout(async () => {
-      try {
-        setSaveStatus("Saving...");
-        await saveDashboardData(dashboardData);
-        setSaveStatus("Saved");
-      } catch (error) {
-        console.error("Firebase save error:", error);
-        setSaveStatus("Save failed");
-      }
-    }, 700);
+    saveTimerRef.current = setTimeout(() => {
+      saveNow(dashboardData);
+    }, 500);
 
     return () => clearTimeout(saveTimerRef.current);
   }, [dashboardData]);
+
+  function forceSaveNow() {
+    clearTimeout(saveTimerRef.current);
+    return saveNow(latestDataRef.current);
+  }
+
+  function resetDashboard() {
+    const blankData = normalizeDashboardData(initialData, initialData);
+    setDashboardData(blankData);
+    saveNow(blankData);
+  }
 
   return {
     dashboardData,
     setDashboardData,
     saveStatus,
+    forceSaveNow,
+    resetDashboard,
+    lastSavedAt,
   };
 }
