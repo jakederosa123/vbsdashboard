@@ -284,34 +284,32 @@ textarea:focus {
   }
 }
 
-
 .saveControls {
-  min-width: 180px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
+  min-width: 240px;
 }
 
-.saveControls .saveBadge {
-  min-width: 0;
+.saveButtons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.saveButtons button {
   width: 100%;
+  padding: 0.65rem 0.85rem;
 }
 
-.saveControls button {
-  width: 100%;
+button.warning {
+  background: #8a6a17;
 }
 
-.lastSaved {
-  margin: -4px 0 0;
-  text-align: center;
+.syncNote {
+  margin: 0;
   color: #566050;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
-@media (max-width: 900px) {
-  .saveControls {
-    width: 100%;
-  }
+  font-size: 0.86rem;
+  text-align: center;
 }

@@ -1,57 +1,55 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyDzhnCPSAA0nVWNC0SWb6_vCIa5hYm9Kgk",
+  authDomain: "vbsdash-43f18.firebaseapp.com",
+  projectId: "vbsdash-43f18",
+  storageBucket: "vbsdash-43f18.firebasestorage.app",
+  messagingSenderId: "718569780585",
+  appId: "1:718569780585:web:1939058bd7cd7e2751f9f8",
+  measurementId: "G-ENK2M539Z8",
 };
 
-export const FIREBASE_SYNC_ENABLED =
-  import.meta.env.VITE_FIREBASE_SYNC_ENABLED === "true";
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
 
-let app = null;
-let db = null;
+const DASHBOARD_COLLECTION = "dashboards";
+const DASHBOARD_DOC_ID = "main";
 
-if (FIREBASE_SYNC_ENABLED) {
-  app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-}
-
-export { db };
-
-const DASHBOARD_DOC_PATH = ["dashboards", "vbsdashboard"];
-
-function getDashboardRef() {
-  if (!FIREBASE_SYNC_ENABLED || !db) return null;
-  return doc(db, ...DASHBOARD_DOC_PATH);
-}
+export const FIREBASE_SYNC_ENABLED = true;
 
 export async function loadDashboardData() {
-  const ref = getDashboardRef();
-  if (!ref) return null;
+  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
+  const snapshot = await getDoc(ref);
 
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return null;
+  if (!snapshot.exists()) {
+    return null;
+  }
 
-  return snap.data();
+  return snapshot.data();
 }
 
 export async function saveDashboardData(data) {
-  const ref = getDashboardRef();
-  if (!ref) return;
+  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
 
-  // Important: this is NOT merge:true.
-  // It replaces the saved dashboard document, so deleted rows do not come back.
+  // IMPORTANT:
+  // Do NOT use { merge: true } here.
+  // This fully replaces the Firestore dashboard document.
   await setDoc(ref, {
-    registrations: data.registrations || [],
-    volunteers: data.volunteers || [],
-    rooms: data.rooms || [],
-    schedule: data.schedule || [],
-    planningNotes: data.planningNotes || "",
+    ...data,
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteDashboardData() {
+  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
+  await deleteDoc(ref);
 }

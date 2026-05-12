@@ -21,9 +21,10 @@ export default function App() {
     dashboardData,
     setDashboardData,
     saveStatus,
-    forceSaveNow,
-    resetDashboard,
-    lastSavedAt,
+    saveNow,
+    clearEverything,
+    deleteFirestoreDocument,
+    firestoreEnabled,
   } = useDashboardAutosave(defaultDashboardData);
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -70,10 +71,13 @@ export default function App() {
   }
 
   function deleteRegistration(id) {
-    setDashboardData((current) => ({
-      ...current,
-      registrations: (current.registrations || []).filter((item) => item.id !== id),
-    }));
+    setDashboardData(
+      (current) => ({
+        ...current,
+        registrations: (current.registrations || []).filter((item) => item.id !== id),
+      }),
+      { saveImmediately: true }
+    );
   }
 
   function addVolunteer() {
@@ -93,10 +97,13 @@ export default function App() {
   }
 
   function deleteVolunteer(id) {
-    setDashboardData((current) => ({
-      ...current,
-      volunteers: (current.volunteers || []).filter((item) => item.id !== id),
-    }));
+    setDashboardData(
+      (current) => ({
+        ...current,
+        volunteers: (current.volunteers || []).filter((item) => item.id !== id),
+      }),
+      { saveImmediately: true }
+    );
   }
 
   function addRoom() {
@@ -115,10 +122,13 @@ export default function App() {
   }
 
   function deleteRoom(id) {
-    setDashboardData((current) => ({
-      ...current,
-      rooms: (current.rooms || []).filter((item) => item.id !== id),
-    }));
+    setDashboardData(
+      (current) => ({
+        ...current,
+        rooms: (current.rooms || []).filter((item) => item.id !== id),
+      }),
+      { saveImmediately: true }
+    );
   }
 
   function addScheduleBlock() {
@@ -138,10 +148,13 @@ export default function App() {
   }
 
   function deleteScheduleBlock(id) {
-    setDashboardData((current) => ({
-      ...current,
-      schedule: (current.schedule || []).filter((item) => item.id !== id),
-    }));
+    setDashboardData(
+      (current) => ({
+        ...current,
+        schedule: (current.schedule || []).filter((item) => item.id !== id),
+      }),
+      { saveImmediately: true }
+    );
   }
 
   function updatePlanningNotes(value) {
@@ -151,6 +164,30 @@ export default function App() {
     }));
   }
 
+
+  function handleSaveNow() {
+    void saveNow(dashboardData);
+  }
+
+  function handleClearEverything() {
+    const confirmed = window.confirm(
+      "Clear the entire dashboard in Firestore? This removes all registrations, volunteers, rooms, schedule blocks, and notes."
+    );
+
+    if (confirmed) {
+      void clearEverything();
+    }
+  }
+
+  function handleDeleteFirestoreDocument() {
+    const confirmed = window.confirm(
+      "Delete the Firestore dashboard document completely? This is only for fixing stuck old data."
+    );
+
+    if (confirmed) {
+      void deleteFirestoreDocument();
+    }
+  }
   return (
     <main className="app">
       <header className="topbar">
@@ -163,14 +200,25 @@ export default function App() {
         </div>
 
         <div className="saveControls">
-          <div className={`saveBadge ${saveStatus === "Saved" ? "saved" : ""}`}>
+          <div
+            className={`saveBadge ${
+              saveStatus === "Saved to Firestore" || saveStatus === "Firestore cleared" ? "saved" : ""
+            }`}
+          >
             {saveStatus}
           </div>
-          {lastSavedAt && <p className="lastSaved">Last saved: {lastSavedAt}</p>}
-          <button type="button" onClick={forceSaveNow}>Save Now</button>
-          <button type="button" className="danger" onClick={resetDashboard}>
-            Clear Dashboard
-          </button>
+          <div className="saveButtons">
+            <button type="button" onClick={handleSaveNow}>Save Now</button>
+            <button type="button" className="warning" onClick={handleClearEverything}>
+              Clear Dashboard
+            </button>
+            <button type="button" className="danger" onClick={handleDeleteFirestoreDocument}>
+              Delete Firestore Doc
+            </button>
+          </div>
+          <p className="syncNote">
+            {firestoreEnabled ? "Firestore sync is on." : "Firestore sync is off. Check Netlify env vars."}
+          </p>
         </div>
       </header>
 
@@ -181,7 +229,6 @@ export default function App() {
               key={tab}
               className={activeTab === tab ? "active" : ""}
               onClick={() => setActiveTab(tab)}
-              type="button"
             >
               {tab[0].toUpperCase() + tab.slice(1)}
             </button>
@@ -217,9 +264,11 @@ export default function App() {
           </div>
 
           <div className="helpBox">
-            <h3>Delete test</h3>
+            <h3>Autosave check</h3>
             <p>
-              Delete a row, click <strong>Save Now</strong>, refresh the page, and the deleted row should stay gone. This version does not use a live Firebase listener, so old Firebase data should not pop back onto the screen after a delete.
+              Make a change anywhere on the dashboard. Wait until the save badge says
+              <strong> Saved to Firestore</strong>. Deleted rows are now saved by replacing the
+              full Firestore dashboard document, not by merging old data back in.
             </p>
           </div>
         </section>
@@ -229,7 +278,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Registrations</h2>
-            <button type="button" onClick={addRegistration}>Add Child</button>
+            <button onClick={addRegistration}>Add Child</button>
           </div>
 
           <div className="table">
@@ -242,24 +291,24 @@ export default function App() {
               <span></span>
             </div>
 
-            {(dashboardData.registrations || []).map((item) => (
+            {dashboardData.registrations.map((item) => (
               <div className="tableRow registrationsGrid" key={item.id}>
                 <input
-                  value={item.childName || ""}
+                  value={item.childName}
                   onChange={(event) =>
                     updateField("registrations", item.id, "childName", event.target.value)
                   }
                   placeholder="Child name"
                 />
                 <input
-                  value={item.age || ""}
+                  value={item.age}
                   onChange={(event) =>
                     updateField("registrations", item.id, "age", event.target.value)
                   }
                   placeholder="Age"
                 />
                 <input
-                  value={item.group || ""}
+                  value={item.group}
                   onChange={(event) =>
                     updateField("registrations", item.id, "group", event.target.value)
                   }
@@ -268,7 +317,7 @@ export default function App() {
                 <label className="checkboxLabel">
                   <input
                     type="checkbox"
-                    checked={Boolean(item.registered)}
+                    checked={item.registered}
                     onChange={(event) =>
                       updateField("registrations", item.id, "registered", event.target.checked)
                     }
@@ -276,13 +325,13 @@ export default function App() {
                   Yes
                 </label>
                 <input
-                  value={item.notes || ""}
+                  value={item.notes}
                   onChange={(event) =>
                     updateField("registrations", item.id, "notes", event.target.value)
                   }
                   placeholder="Notes"
                 />
-                <button type="button" className="danger" onClick={() => deleteRegistration(item.id)}>
+                <button className="danger" onClick={() => deleteRegistration(item.id)}>
                   Delete
                 </button>
               </div>
@@ -295,7 +344,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Volunteers</h2>
-            <button type="button" onClick={addVolunteer}>Add Volunteer</button>
+            <button onClick={addVolunteer}>Add Volunteer</button>
           </div>
 
           <div className="table">
@@ -307,24 +356,24 @@ export default function App() {
               <span></span>
             </div>
 
-            {(dashboardData.volunteers || []).map((item) => (
+            {dashboardData.volunteers.map((item) => (
               <div className="tableRow volunteersGrid" key={item.id}>
                 <input
-                  value={item.name || ""}
+                  value={item.name}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "name", event.target.value)
                   }
                   placeholder="Volunteer name"
                 />
                 <input
-                  value={item.role || ""}
+                  value={item.role}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "role", event.target.value)
                   }
                   placeholder="Role"
                 />
                 <input
-                  value={item.day || ""}
+                  value={item.day}
                   onChange={(event) =>
                     updateField("volunteers", item.id, "day", event.target.value)
                   }
@@ -333,14 +382,14 @@ export default function App() {
                 <label className="checkboxLabel">
                   <input
                     type="checkbox"
-                    checked={Boolean(item.confirmed)}
+                    checked={item.confirmed}
                     onChange={(event) =>
                       updateField("volunteers", item.id, "confirmed", event.target.checked)
                     }
                   />
                   Yes
                 </label>
-                <button type="button" className="danger" onClick={() => deleteVolunteer(item.id)}>
+                <button className="danger" onClick={() => deleteVolunteer(item.id)}>
                   Delete
                 </button>
               </div>
@@ -353,7 +402,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Rooms</h2>
-            <button type="button" onClick={addRoom}>Add Room</button>
+            <button onClick={addRoom}>Add Room</button>
           </div>
 
           <div className="table">
@@ -364,26 +413,26 @@ export default function App() {
               <span></span>
             </div>
 
-            {(dashboardData.rooms || []).map((item) => (
+            {dashboardData.rooms.map((item) => (
               <div className="tableRow roomsGrid" key={item.id}>
                 <input
-                  value={item.name || ""}
+                  value={item.name}
                   onChange={(event) => updateField("rooms", item.id, "name", event.target.value)}
                   placeholder="Room name"
                 />
                 <input
-                  value={item.capacity || ""}
+                  value={item.capacity}
                   onChange={(event) =>
                     updateField("rooms", item.id, "capacity", event.target.value)
                   }
                   placeholder="Capacity"
                 />
                 <input
-                  value={item.notes || ""}
+                  value={item.notes}
                   onChange={(event) => updateField("rooms", item.id, "notes", event.target.value)}
                   placeholder="Notes"
                 />
-                <button type="button" className="danger" onClick={() => deleteRoom(item.id)}>
+                <button className="danger" onClick={() => deleteRoom(item.id)}>
                   Delete
                 </button>
               </div>
@@ -396,7 +445,7 @@ export default function App() {
         <section className="panel">
           <div className="sectionHeader">
             <h2>Schedule</h2>
-            <button type="button" onClick={addScheduleBlock}>Add Schedule Block</button>
+            <button onClick={addScheduleBlock}>Add Schedule Block</button>
           </div>
 
           <div className="table">
@@ -408,33 +457,33 @@ export default function App() {
               <span></span>
             </div>
 
-            {(dashboardData.schedule || []).map((item) => (
+            {dashboardData.schedule.map((item) => (
               <div className="tableRow scheduleGrid" key={item.id}>
                 <input
-                  value={item.time || ""}
+                  value={item.time}
                   onChange={(event) => updateField("schedule", item.id, "time", event.target.value)}
                   placeholder="9:00 AM"
                 />
                 <input
-                  value={item.activity || ""}
+                  value={item.activity}
                   onChange={(event) =>
                     updateField("schedule", item.id, "activity", event.target.value)
                   }
                   placeholder="Activity"
                 />
                 <input
-                  value={item.location || ""}
+                  value={item.location}
                   onChange={(event) =>
                     updateField("schedule", item.id, "location", event.target.value)
                   }
                   placeholder="Location"
                 />
                 <input
-                  value={item.leader || ""}
+                  value={item.leader}
                   onChange={(event) => updateField("schedule", item.id, "leader", event.target.value)}
                   placeholder="Leader"
                 />
-                <button type="button" className="danger" onClick={() => deleteScheduleBlock(item.id)}>
+                <button className="danger" onClick={() => deleteScheduleBlock(item.id)}>
                   Delete
                 </button>
               </div>
@@ -448,7 +497,7 @@ export default function App() {
           <h2>Planning Notes</h2>
           <textarea
             className="notesBox"
-            value={dashboardData.planningNotes || ""}
+            value={dashboardData.planningNotes}
             onChange={(event) => updatePlanningNotes(event.target.value)}
             placeholder="Write planning notes here. These notes autosave to Firebase."
           />
