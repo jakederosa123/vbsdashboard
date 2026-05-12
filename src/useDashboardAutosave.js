@@ -7,8 +7,6 @@ import {
   FIREBASE_SYNC_ENABLED,
 } from "./firebase";
 
-const LOCAL_BACKUP_KEY = "vbsdashboard.localBackup.v2";
-
 function normalizeDashboardData(data, fallback) {
   return {
     registrations: Array.isArray(data?.registrations)
@@ -26,159 +24,128 @@ function normalizeDashboardData(data, fallback) {
   };
 }
 
-function readLocalBackup() {
-  try {
-    const raw = window.localStorage.getItem(LOCAL_BACKUP_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch (error) {
-    console.warn("Could not read local backup:", error);
-    return null;
-  }
-}
-
-function writeLocalBackup(data) {
-  try {
-    window.localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.warn("Could not write local backup:", error);
-  }
-}
-
 export function useDashboardAutosave(initialData) {
-  const emptyInitialData = normalizeDashboardData(initialData, initialData);
-  const [dashboardData, setDashboardDataState] = useState(emptyInitialData);
+  // Keep the fallback stable. If this object changes on every render,
+  // the hook can reload Firestore repeatedly and rehydrate deleted rows.
+  const initialDataRef = useRef(null);
+  if (!initialDataRef.current) {
+    initialDataRef.current = normalizeDashboardData(initialData, initialData);
+  }
+
+  const [dashboardData, setDashboardDataState] = useState(initialDataRef.current);
   const [saveStatus, setSaveStatus] = useState(
     FIREBASE_SYNC_ENABLED ? "Loading Firestore..." : "Firestore sync is off"
   );
 
   const loadedRef = useRef(false);
-  const saveTimerRef = useRef(null);
-  const latestDataRef = useRef(emptyInitialData);
+  const latestDataRef = useRef(initialDataRef.current);
+  const saveRequestRef = useRef(0);
 
-  const saveNow = useCallback(
-    async (dataOverride) => {
-      const nextData = normalizeDashboardData(
-        dataOverride || latestDataRef.current,
-        emptyInitialData
-      );
+  const saveNow = useCallback(async (dataOverride) => {
+    const requestId = saveRequestRef.current + 1;
+    saveRequestRef.current = requestId;
 
-      latestDataRef.current = nextData;
-      writeLocalBackup(nextData);
+    const cleanData = normalizeDashboardData(
+      dataOverride || latestDataRef.current,
+      initialDataRef.current
+    );
 
-      if (!FIREBASE_SYNC_ENABLED) {
-        setSaveStatus("Saved locally only");
-        return;
-      }
+    latestDataRef.current = cleanData;
 
-      try {
-        clearTimeout(saveTimerRef.current);
-        setSaveStatus("Saving to Firestore...");
-        await saveDashboardData(nextData);
-        setSaveStatus("Saved to Firestore");
-      } catch (error) {
-        console.error("Firestore save error:", error);
-        setSaveStatus("Firestore save failed");
-      }
-    },
-    [emptyInitialData]
-  );
-
-  const setDashboardData = useCallback(
-    (updater, options = {}) => {
-      setDashboardDataState((current) => {
-        const nextRaw = typeof updater === "function" ? updater(current) : updater;
-        const nextData = normalizeDashboardData(nextRaw, emptyInitialData);
-        latestDataRef.current = nextData;
-        writeLocalBackup(nextData);
-
-        if (loadedRef.current && options.saveImmediately) {
-          void saveNow(nextData);
-        }
-
-        return nextData;
-      });
-    },
-    [emptyInitialData, saveNow]
-  );
-
-  const clearEverything = useCallback(async () => {
-    const emptyData = normalizeDashboardData(emptyInitialData, emptyInitialData);
-    latestDataRef.current = emptyData;
-    setDashboardDataState(emptyData);
-    writeLocalBackup(emptyData);
-
-    if (!FIREBASE_SYNC_ENABLED) {
-      setSaveStatus("Cleared locally only");
-      return;
-    }
-
-    try {
-      clearTimeout(saveTimerRef.current);
-      setSaveStatus("Clearing Firestore...");
-      await clearDashboardData(emptyData);
-      setSaveStatus("Firestore cleared");
-    } catch (error) {
-      console.error("Firestore clear error:", error);
-      setSaveStatus("Firestore clear failed");
-    }
-  }, [emptyInitialData]);
-
-  const deleteFirestoreDocument = useCallback(async () => {
     if (!FIREBASE_SYNC_ENABLED) {
       setSaveStatus("Firestore sync is off");
       return;
     }
 
     try {
-      clearTimeout(saveTimerRef.current);
+      setSaveStatus("Saving to Firestore...");
+      await saveDashboardData(cleanData);
+
+      // Only the newest save is allowed to update the status.
+      if (saveRequestRef.current === requestId) {
+        setSaveStatus("Saved to Firestore");
+      }
+    } catch (error) {
+      console.error("Firestore save error:", error);
+      setSaveStatus("Firestore save failed");
+    }
+  }, []);
+
+  const setDashboardData = useCallback(
+    (updater) => {
+      setDashboardDataState((current) => {
+        const nextRaw = typeof updater === "function" ? updater(current) : updater;
+        const cleanNext = normalizeDashboardData(nextRaw, initialDataRef.current);
+
+        latestDataRef.current = cleanNext;
+
+        // Save every user edit immediately. This prevents refreshes from restoring old rows.
+        if (loadedRef.current) {
+          void saveNow(cleanNext);
+        }
+
+        return cleanNext;
+      });
+    },
+    [saveNow]
+  );
+
+  const clearEverything = useCallback(async () => {
+    const emptyData = normalizeDashboardData({}, initialDataRef.current);
+    latestDataRef.current = emptyData;
+    setDashboardDataState(emptyData);
+
+    try {
+      setSaveStatus("Clearing Firestore...");
+      await clearDashboardData();
+      setSaveStatus("Firestore cleared");
+    } catch (error) {
+      console.error("Firestore clear error:", error);
+      setSaveStatus("Firestore clear failed");
+    }
+  }, []);
+
+  const deleteFirestoreDocument = useCallback(async () => {
+    const emptyData = normalizeDashboardData({}, initialDataRef.current);
+    latestDataRef.current = emptyData;
+    setDashboardDataState(emptyData);
+
+    try {
       setSaveStatus("Deleting Firestore document...");
       await deleteDashboardDocument();
-      const emptyData = normalizeDashboardData(emptyInitialData, emptyInitialData);
-      latestDataRef.current = emptyData;
-      setDashboardDataState(emptyData);
-      writeLocalBackup(emptyData);
       setSaveStatus("Firestore document deleted");
     } catch (error) {
       console.error("Firestore delete error:", error);
       setSaveStatus("Firestore delete failed");
     }
-  }, [emptyInitialData]);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
     async function loadOnce() {
       try {
-        let startingData = null;
-
-        if (FIREBASE_SYNC_ENABLED) {
-          startingData = await loadDashboardData();
-        }
-
-        if (!startingData) {
-          startingData = readLocalBackup();
-        }
-
-        const cleanData = normalizeDashboardData(startingData || emptyInitialData, emptyInitialData);
+        const savedData = await loadDashboardData();
+        const cleanData = normalizeDashboardData(
+          savedData || initialDataRef.current,
+          initialDataRef.current
+        );
 
         if (!isMounted) return;
 
         latestDataRef.current = cleanData;
         setDashboardDataState(cleanData);
-        writeLocalBackup(cleanData);
         loadedRef.current = true;
-        setSaveStatus(startingData ? "Loaded saved dashboard" : "Ready");
+        setSaveStatus(savedData ? "Loaded from Firestore" : "Ready");
       } catch (error) {
         console.error("Firestore load error:", error);
 
-        const localBackup = normalizeDashboardData(readLocalBackup() || emptyInitialData, emptyInitialData);
-
         if (!isMounted) return;
 
-        latestDataRef.current = localBackup;
-        setDashboardDataState(localBackup);
+        latestDataRef.current = initialDataRef.current;
+        setDashboardDataState(initialDataRef.current);
         loadedRef.current = true;
-        setSaveStatus("Loaded local backup");
+        setSaveStatus("Firestore load failed");
       }
     }
 
@@ -186,22 +153,8 @@ export function useDashboardAutosave(initialData) {
 
     return () => {
       isMounted = false;
-      clearTimeout(saveTimerRef.current);
     };
-  }, [emptyInitialData]);
-
-  useEffect(() => {
-    if (!loadedRef.current) return;
-
-    clearTimeout(saveTimerRef.current);
-    setSaveStatus(FIREBASE_SYNC_ENABLED ? "Unsaved Firestore changes" : "Unsaved local changes");
-
-    saveTimerRef.current = setTimeout(() => {
-      void saveNow(dashboardData);
-    }, 450);
-
-    return () => clearTimeout(saveTimerRef.current);
-  }, [dashboardData, saveNow]);
+  }, []);
 
   return {
     dashboardData,

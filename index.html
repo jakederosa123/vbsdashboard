@@ -979,19 +979,38 @@
     function normalizeSlotArray(arr, desired) { const out = Array.isArray(arr) ? arr.slice(0, desired) : []; while (out.length < desired) out.push(''); return out; }
     function loadData() { try { const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY_V3) || localStorage.getItem(LEGACY_STORAGE_KEY); return mergeData(saved ? JSON.parse(saved) : clone(DEFAULT_DATA)); } catch { return mergeData(clone(DEFAULT_DATA)); } }
     function mergeData(saved) {
-      const merged = clone(DEFAULT_DATA); Object.assign(merged, saved || {});
-      merged.registration = Object.assign(clone(DEFAULT_DATA.registration), saved?.registration || {}); merged.registration.filters = Object.assign(clone(DEFAULT_DATA.registration.filters), saved?.registration?.filters || {});
-      merged.scheduleSettings = Object.assign(clone(DEFAULT_DATA.scheduleSettings), saved?.scheduleSettings || {});
-      merged.stations = Array.isArray(saved?.stations) && saved.stations.length ? saved.stations : clone(DEFAULT_DATA.stations);
-      DEFAULT_DATA.stations.forEach(st => { if (!merged.stations.some(existing => existing.id === st.id)) merged.stations.push(clone(st)); });
-      merged.rooms = Array.isArray(saved?.rooms) && saved.rooms.length ? saved.rooms : clone(DEFAULT_DATA.rooms);
-      DEFAULT_DATA.rooms.forEach(room => { if (!merged.rooms.some(existing => existing.id === room.id)) merged.rooms.push(clone(room)); });
+      const hasSaved = saved && typeof saved === 'object';
+      const merged = clone(DEFAULT_DATA);
+      Object.assign(merged, saved || {});
+
+      merged.registration = Object.assign(
+        clone(DEFAULT_DATA.registration),
+        hasSaved && saved.registration ? saved.registration : {}
+      );
+      merged.registration.filters = Object.assign(
+        clone(DEFAULT_DATA.registration.filters),
+        hasSaved && saved.registration?.filters ? saved.registration.filters : {}
+      );
+
+      merged.scheduleSettings = Object.assign(
+        clone(DEFAULT_DATA.scheduleSettings),
+        hasSaved && saved.scheduleSettings ? saved.scheduleSettings : {}
+      );
+
+      // IMPORTANT: do not re-add default items after the user deletes them.
+      // Only use defaults when there is no saved value at all.
+      merged.stations = Array.isArray(saved?.stations) ? saved.stations : clone(DEFAULT_DATA.stations);
+      merged.rooms = Array.isArray(saved?.rooms) ? saved.rooms : clone(DEFAULT_DATA.rooms);
       merged.rooms.forEach(room => { delete room.owner; });
-      merged.scheduleBlocks = Object.assign(clone(DEFAULT_DATA.scheduleBlocks), saved?.scheduleBlocks || {});
-      merged.pages = Array.isArray(saved?.pages) && saved.pages.length ? saved.pages : clone(DEFAULT_DATA.pages);
-      DEFAULT_DATA.pages.forEach(page => { if (!merged.pages.some(existing => existing.id === page.id)) merged.pages.unshift(clone(page)); });
+      merged.scheduleBlocks = saved && Object.prototype.hasOwnProperty.call(saved, 'scheduleBlocks')
+        ? (saved.scheduleBlocks || {})
+        : clone(DEFAULT_DATA.scheduleBlocks);
+      merged.pages = Array.isArray(saved?.pages) ? saved.pages : clone(DEFAULT_DATA.pages);
       merged.groups = Array.isArray(saved?.groups) ? saved.groups : [];
-      merged.volunteerInterest = Array.isArray(saved?.volunteerInterest) && saved.volunteerInterest.length ? saved.volunteerInterest : clone(DEFAULT_DATA.volunteerInterest);
+      merged.volunteerInterest = Array.isArray(saved?.volunteerInterest)
+        ? saved.volunteerInterest
+        : clone(DEFAULT_DATA.volunteerInterest);
+
       return merged;
     }
     function saveData(show = false) { syncTopInputs(); localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); if (show) showSaved('Saved'); }
@@ -1502,12 +1521,13 @@
 
         async function writeCloud(show = false) {
           try {
+            // Full document replacement. Do not use merge here, because merge can preserve old nested data.
             await docRef.set({
               data: clone(data),
               updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
               updatedBy: getEditorName()
-            }, { merge: true });
-            setCloudStatus('Live sync on', 'Saved to Firebase. Collaborators with this page open will receive the update automatically.');
+            });
+            setCloudStatus('Live sync on', 'Saved to Firebase. Deleted items stay deleted.');
             if (show) showSaved('Saved + synced');
           } catch (error) {
             console.error('Cloud save failed:', error);
@@ -1524,12 +1544,15 @@
             return;
           }
           clearTimeout(saveTimer);
-          saveTimer = setTimeout(() => writeCloud(show), 500);
+          saveTimer = setTimeout(() => writeCloud(show), 250);
         };
 
-        docRef.onSnapshot(snapshot => {
+        // Load the Firestore dashboard once on startup.
+        // Do not keep a live onSnapshot listener, because it can rehydrate old rows after local deletes.
+        docRef.get().then(snapshot => {
           if (!snapshot.exists) {
             writeCloud(false);
+            setCloudStatus('Live sync on', 'Created the shared Firebase dashboard document.');
             return;
           }
           const remote = snapshot.data()?.data;
@@ -1539,14 +1562,14 @@
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
           renderAll();
           suppressRemoteWrite = false;
-          setCloudStatus('Live sync on', 'Loaded the newest shared plan from Firebase.');
-          showSaved('Synced');
-        }, error => {
-          console.error('Cloud listener failed:', error);
-          setCloudStatus('Cloud listener failed', error.message || 'Check Firebase config and Firestore rules.');
+          setCloudStatus('Live sync on', 'Loaded the saved dashboard once. Future deletes save back to Firebase.');
+          showSaved('Loaded');
+        }).catch(error => {
+          console.error('Cloud load failed:', error);
+          setCloudStatus('Cloud load failed', error.message || 'Check Firebase config and Firestore rules.');
         });
 
-        setCloudStatus('Connecting to Firebase', 'Trying to load the shared dashboard document.');
+        setCloudStatus('Connecting to Firebase', 'Loading the shared dashboard document.');
       } catch (error) {
         console.error('Firebase setup failed:', error);
         setCloudStatus('Firebase setup failed', error.message || 'Check your Firebase config.');

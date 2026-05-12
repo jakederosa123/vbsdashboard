@@ -21,35 +21,50 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-const DASHBOARD_COLLECTION = "dashboards";
-const DASHBOARD_DOC_ID = "main";
-
 export const FIREBASE_SYNC_ENABLED = true;
 
+const DASHBOARD_DOC_PATH = ["dashboards", "vbsdashboard"];
+
+function dashboardRef() {
+  return doc(db, ...DASHBOARD_DOC_PATH);
+}
+
+function cleanForFirestore(data) {
+  return {
+    registrations: Array.isArray(data?.registrations) ? data.registrations : [],
+    volunteers: Array.isArray(data?.volunteers) ? data.volunteers : [],
+    rooms: Array.isArray(data?.rooms) ? data.rooms : [],
+    schedule: Array.isArray(data?.schedule) ? data.schedule : [],
+    planningNotes: typeof data?.planningNotes === "string" ? data.planningNotes : "",
+  };
+}
+
 export async function loadDashboardData() {
-  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
-  const snapshot = await getDoc(ref);
-
-  if (!snapshot.exists()) {
-    return null;
-  }
-
-  return snapshot.data();
+  const snap = await getDoc(dashboardRef());
+  if (!snap.exists()) return null;
+  return cleanForFirestore(snap.data());
 }
 
 export async function saveDashboardData(data) {
-  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
-
-  // IMPORTANT:
-  // Do NOT use { merge: true } here.
-  // This fully replaces the Firestore dashboard document.
-  await setDoc(ref, {
-    ...data,
+  // Full document replacement. No merge. Deleted rows stay deleted.
+  await setDoc(dashboardRef(), {
+    ...cleanForFirestore(data),
     updatedAt: serverTimestamp(),
   });
 }
 
-export async function deleteDashboardData() {
-  const ref = doc(db, DASHBOARD_COLLECTION, DASHBOARD_DOC_ID);
-  await deleteDoc(ref);
+export async function clearDashboardData() {
+  await setDoc(dashboardRef(), {
+    registrations: [],
+    volunteers: [],
+    rooms: [],
+    schedule: [],
+    planningNotes: "",
+    updatedAt: serverTimestamp(),
+    clearedAt: serverTimestamp(),
+  });
+}
+
+export async function deleteDashboardDocument() {
+  await deleteDoc(dashboardRef());
 }
