@@ -317,7 +317,7 @@
       <section id="roomsView" class="view"><div class="panel"><div class="section-head"><div><h3>Rooms</h3><p>Add or edit rooms. Each room appears automatically on the schedule grid.</p></div><button class="btn" id="addRoomBtn2">Add room</button></div><div class="grid-2" id="roomCards"></div></div></section>
       <section id="groupsView" class="view"><div class="panel"><div class="section-head"><div><h3>Groups</h3><p>Animal and color groups are assigned by age/grade. If a group gets too large, the sync tool automatically creates A/B groups for that animal color.</p></div><button class="btn" id="syncRegisteredKidsBtn2">Rebuild groups from registration</button></div><div class="card" style="margin-bottom:16px;"><span class="pill pill-green">Final Groups Overview</span><div id="ageGroupGuide" class="stack-list"></div><p class="small">Contingency plan: if registration grows, split younger groups first, then older groups as needed. Depending on age registration, we may need multiple groups per age band. Each group should have its animal/color sign and a designated sanctuary meeting spot for morning gathering and pickup.</p></div><div class="grid-3" id="groupCards"></div></div></section>
       <section id="volunteersView" class="view"><div class="panel"><div class="section-head"><div><h3>Volunteer Directory</h3><p>Shows each volunteer and every assignment that uses their name.</p></div></div><div class="table-wrap"><table><thead><tr><th>Volunteer</th><th>Days Working</th><th>Assignments</th></tr></thead><tbody id="volunteerDirectoryBody"></tbody></table></div></div></section>
-      <section id="volunteerInterestView" class="view"><div class="panel"><div class="section-head"><div><h3>Volunteer Interest Pipeline</h3><p>Upload your volunteer CSV, track people who might serve, and move them into group or station spots. Uploaded volunteers are preserved and merged by name, so they do not disappear when the dashboard refreshes.</p></div><button class="btn" id="addVolunteerInterestBtn">Add person</button></div><div class="grid-2"><div class="card"><span class="pill pill-green">Volunteer CSV</span><div class="field"><label for="volunteerCsvFile">Upload Volunteer CSV</label><input id="volunteerCsvFile" type="file" accept=".csv,.tsv,.txt" /></div><p class="small" id="volunteerUploadStatus">No volunteer CSV uploaded yet. Expected fields can include Name, Date of Last Contact, Commitment, Notes, and Followup Needed.</p></div><div class="card"><span class="pill pill-orange">How this works</span><p class="small">Uploaded volunteers are added to the interest pipeline without deleting existing names. Matching is based on normalized volunteer name.</p></div></div><div class="table-wrap" style="margin-top:16px;"><table><thead><tr><th>Name</th><th>Contact</th><th>Commitment</th><th>Status</th><th>Available Days</th><th>Move Into</th><th>Actions</th></tr></thead><tbody id="volunteerInterestBody"></tbody></table></div></div></section>
+      <section id="volunteerInterestView" class="view"><div class="panel"><div class="section-head"><div><h3>Volunteer Interest Pipeline</h3><p>Upload your volunteer CSV, track people who might serve, and move them into group or station spots. Uploaded volunteers are preserved and merged by name, so they do not disappear when the dashboard refreshes.</p></div><button class="btn" id="addVolunteerInterestBtn">Add person</button></div><div class="grid-2"><div class="card"><span class="pill pill-green">Volunteer CSV</span><div class="field"><label for="volunteerCsvFile">Upload Volunteer CSV</label><input id="volunteerCsvFile" type="file" accept=".csv,.tsv,.txt" /></div><p class="small" id="volunteerUploadStatus">No volunteer CSV uploaded yet. Expected fields can include Name, Date of Last Contact, Commitment, Notes, and Followup Needed.</p></div><div class="card"><span class="pill pill-orange">How this works</span><p class="small">Uploaded volunteers are added to the interest pipeline without deleting existing names. Matching is based on normalized volunteer name.</p></div></div><div class="table-wrap" style="margin-top:16px;"><table style="min-width:1250px"><thead><tr><th>Name</th><th>Contact</th><th>Commitment / Notes</th><th>Status</th><th>Available Days</th><th>Move Into / Role</th><th>Actions</th></tr></thead><tbody id="volunteerInterestBody"></tbody></table></div></div></section>
       <section id="stationsView" class="view"><div class="panel"><div class="section-head"><div><h3>Stations</h3><p>Each station has its own tab, staffing counts, and day-by-day lead/support lists.</p></div><button class="btn" id="addStationBtn">Add station</button></div><div class="grid-3" id="stationCards"></div><div id="stationTabs" class="hidden"></div><div id="stationPanels" class="hidden"></div></div></section>
       <section id="peopleView" class="view"><div class="panel"><div class="section-head"><div><h3>Person Lookup</h3><p>Search a kid, registered child, or volunteer and open their schedule and assignments.</p></div></div><div class="search-layout"><div class="card"><div class="field"><label for="personSearch">Search name</label><input id="personSearch" placeholder="Type a person name" /></div><div id="personSearchResults" class="search-results"></div></div><div class="card"><div id="personEmptyState" class="meta">Select a person to see their schedule.</div><div id="personResult"></div></div></div></div></section>
       <section id="pagesView" class="view"><div class="panel"><div class="section-head"><div><h3>Side Planning Pages</h3><p>Create extra pages for curriculum, supplies, parent communication, volunteer training, budgets, or anything else you are building.</p></div><button class="btn" id="addPageBtn2">Add page</button></div><div class="page-tabs" id="pageTabs"></div><div id="pagePanels"></div></div></section>
@@ -871,19 +871,6 @@
                 "role": "Support"
         },
         {
-                "id": "interest-stephine-townsend",
-                "name": "Stephine Townsend?",
-                "lastContact": "",
-                "commitment": "",
-                "notes": "",
-                "followup": "",
-                "status": "Interest",
-                "days": [],
-                "assignmentType": "station",
-                "assignmentId": "",
-                "role": "Support"
-        },
-        {
                 "id": "interest-ian-andrew",
                 "name": "Ian andrew",
                 "lastContact": "",
@@ -977,6 +964,11 @@
     function escapeHtml(value) { return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
     function escapeAttr(value) { return escapeHtml(value); }
     function normalizeSlotArray(arr, desired) { const out = Array.isArray(arr) ? arr.slice(0, desired) : []; while (out.length < desired) out.push(''); return out; }
+    function isExcludedVolunteerInterest(item) {
+      const name = String(item?.name || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      const id = String(item?.id || '').toLowerCase();
+      return name === 'stephine townsend' || name === 'stephine townsend?' || name === 'stephanie townsend' || name === 'stephanie townsend?' || id.includes('stephine-townsend') || id.includes('stephanie-townsend');
+    }
     function loadData() { try { const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY_V3) || localStorage.getItem(LEGACY_STORAGE_KEY); return mergeData(saved ? JSON.parse(saved) : clone(DEFAULT_DATA)); } catch { return mergeData(clone(DEFAULT_DATA)); } }
     function mergeData(saved) {
       const hasSaved = saved && typeof saved === 'object';
@@ -1007,9 +999,9 @@
         : clone(DEFAULT_DATA.scheduleBlocks);
       merged.pages = Array.isArray(saved?.pages) ? saved.pages : clone(DEFAULT_DATA.pages);
       merged.groups = Array.isArray(saved?.groups) ? saved.groups : [];
-      merged.volunteerInterest = Array.isArray(saved?.volunteerInterest)
+      merged.volunteerInterest = (Array.isArray(saved?.volunteerInterest)
         ? saved.volunteerInterest
-        : clone(DEFAULT_DATA.volunteerInterest);
+        : clone(DEFAULT_DATA.volunteerInterest)).filter(v => !isExcludedVolunteerInterest(v));
 
       return merged;
     }
@@ -1149,6 +1141,8 @@
       return {
         id: makeId(full || 'volunteer'),
         name: full,
+        phone,
+        email,
         lastContact: getField(row, ['date_of_last_contact','date of last contact','last_contact','last contact','contacted']),
         contact: contactPieces.join(' | '),
         commitment: getField(row, ['commitment','availability','serving_commitment','serving commitment','available']),
@@ -1162,18 +1156,46 @@
       };
     }
 
-    async function importVolunteerCsvFile(file) { if (!file) return; try { setVolunteerStatus(`Reading ${file.name}...`); const rows = await readCsvFile(file); const incoming = rows.map(standardizeVolunteerRow).filter(v => String(v.name || '').trim()); const byName = new Map((data.volunteerInterest || []).map(v => [norm(v.name), v])); let added = 0, updated = 0; incoming.forEach(v => { const key = norm(v.name); if (byName.has(key)) { Object.assign(byName.get(key), { lastContact: byName.get(key).lastContact || v.lastContact, contact: byName.get(key).contact || v.contact, commitment: byName.get(key).commitment || v.commitment, notes: byName.get(key).notes || v.notes, followup: byName.get(key).followup || v.followup, status: byName.get(key).status || v.status }); updated++; } else { data.volunteerInterest.push(v); added++; } }); saveAndRender(); setVolunteerStatus(`Loaded ${incoming.length} volunteer rows. Added ${added}, updated ${updated}.`); } catch (err) { console.error(err); setVolunteerStatus('Volunteer CSV could not be read. Export it as a normal CSV and try again.'); } }
-    function addVolunteerInterest() { const name = prompt('Volunteer name?'); if (!name || !name.trim()) return; data.volunteerInterest.push({ id: makeId(name), name: name.trim(), lastContact: '', commitment: '', notes: '', followup: '', status: 'Interest', days: [], assignmentType: 'station', assignmentId: '', role: 'Support' }); saveAndRender(); showView('volunteerInterestView'); }
+    async function importVolunteerCsvFile(file) { if (!file) return; try { setVolunteerStatus(`Reading ${file.name}...`); const rows = await readCsvFile(file); const incoming = rows.map(standardizeVolunteerRow).filter(v => String(v.name || '').trim()); const byName = new Map((data.volunteerInterest || []).map(v => [norm(v.name), v])); let added = 0, updated = 0; incoming.forEach(v => { const key = norm(v.name); if (byName.has(key)) { Object.assign(byName.get(key), { lastContact: byName.get(key).lastContact || v.lastContact, phone: byName.get(key).phone || v.phone, email: byName.get(key).email || v.email, contact: byName.get(key).contact || v.contact, commitment: byName.get(key).commitment || v.commitment, notes: byName.get(key).notes || v.notes, followup: byName.get(key).followup || v.followup, status: byName.get(key).status || v.status }); updated++; } else { data.volunteerInterest.push(v); added++; } }); saveAndRender(); setVolunteerStatus(`Loaded ${incoming.length} volunteer rows. Added ${added}, updated ${updated}.`); } catch (err) { console.error(err); setVolunteerStatus('Volunteer CSV could not be read. Export it as a normal CSV and try again.'); } }
+    function addVolunteerInterest() { const name = prompt('Volunteer name?'); if (!name || !name.trim()) return; data.volunteerInterest.push({ id: makeId(name), name: name.trim(), phone: '', email: '', lastContact: '', commitment: '', notes: '', followup: '', status: 'Interest', days: [], assignmentType: 'station', assignmentId: '', role: 'Support' }); saveAndRender(); showView('volunteerInterestView'); }
     function removeVolunteerInterest(index) { if (!confirm('Remove this volunteer interest record?')) return; data.volunteerInterest.splice(index,1); saveAndRender(); }
     function toggleVolunteerDay(index, day, checked) { const item = data.volunteerInterest[index]; if (!item) return; item.days = item.days || []; if (checked && !item.days.includes(day)) item.days.push(day); if (!checked) item.days = item.days.filter(d => d !== day); saveData(false); renderVolunteerInterest(); }
     function commitVolunteerInterest(index) { const item = data.volunteerInterest[index]; if (!item) return; const days = item.days && item.days.length ? item.days : DAYS; const targetList = item.assignmentType === 'group' ? data.groups : data.stations; const target = targetList.find(x => x.id === item.assignmentId) || targetList[0]; if (!target) return; const needed = item.assignmentType === 'group' ? Math.max(1, Number(data.leadsPerGroup||0) + Number(data.supportPerGroup||0)) : Math.max(1, Number(target.lead||0) + Number(target.support||0)); target.days = target.days || {}; days.forEach(day => { target.days[day] = normalizeSlotArray(target.days[day], needed); const open = target.days[day].findIndex(v => !String(v||'').trim()); if (open >= 0) target.days[day][open] = item.name; }); item.status = 'Committed'; saveAndRender(); }
     function renderVolunteerInterest() {
       const body = document.getElementById('volunteerInterestBody');
       if (!body) return;
-      const items = data.volunteerInterest || [];
+      data.volunteerInterest = (data.volunteerInterest || []).filter(v => !isExcludedVolunteerInterest(v));
+      const items = data.volunteerInterest;
       body.innerHTML = items.map((v,i) => {
+        const contact = String(v.contact || '');
+        const emailFromContact = (contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [''])[0];
+        const phoneFromContact = contact.replace(emailFromContact, '').replace(/Email:\s*/i, '').replace(/Phone:\s*/i, '').replace(/\s*\|\s*/g, ' ').trim();
+        const phoneValue = v.phone || phoneFromContact || '';
+        const emailValue = v.email || emailFromContact || '';
         const targetOptions = (v.assignmentType === 'group' ? data.groups : data.stations).map(x => `<option value="${escapeAttr(x.id)}" ${x.id === v.assignmentId ? 'selected' : ''}>${escapeHtml(x.name)}</option>`).join('');
-        return `<tr><td><input value="${escapeAttr(v.name)}" onchange="data.volunteerInterest[${i}].name=this.value;saveData(true);renderVolunteerDirectory();"></td><td><input placeholder="Email, phone, or last contact" value="${escapeAttr(v.contact || v.lastContact || '')}" onchange="data.volunteerInterest[${i}].contact=this.value;saveData(true)"></td><td><input value="${escapeAttr(v.commitment||'')}" onchange="data.volunteerInterest[${i}].commitment=this.value;saveData(true)"><p class="small">${escapeHtml(v.notes||'')}</p></td><td><select onchange="data.volunteerInterest[${i}].status=this.value;saveData(true);renderVolunteerDirectory();"><option ${v.status==='Interest'?'selected':''}>Interest</option><option ${v.status==='Contacted'?'selected':''}>Contacted</option><option ${v.status==='Committed'?'selected':''}>Committed</option><option ${v.status==='Prep only'?'selected':''}>Prep only</option></select></td><td>${DAYS.map(day => `<label style="display:block"><input style="width:auto" type="checkbox" ${v.days?.includes(day)?'checked':''} onchange="toggleVolunteerDay(${i},'${day}',this.checked)"> ${day}</label>`).join('')}</td><td><select onchange="data.volunteerInterest[${i}].assignmentType=this.value;data.volunteerInterest[${i}].assignmentId='';saveAndRender(false)"><option value="station" ${v.assignmentType!=='group'?'selected':''}>Station</option><option value="group" ${v.assignmentType==='group'?'selected':''}>Group</option></select><select onchange="data.volunteerInterest[${i}].assignmentId=this.value;saveData(true)">${targetOptions}</select></td><td class="row-actions"><button class="mini-btn" onclick="commitVolunteerInterest(${i})">Commit</button><button class="mini-btn" onclick="removeVolunteerInterest(${i})">Remove</button></td></tr>`;
+        const statusOptions = ['Interest','Contacted','Committed','Prep only','Maybe','Unavailable'].map(status => `<option ${v.status === status ? 'selected' : ''}>${status}</option>`).join('');
+        const roleOptions = ['Lead','Support','Floater','Prep','Setup','BBQ','Check-in'].map(role => `<option ${v.role === role ? 'selected' : ''}>${role}</option>`).join('');
+        return `<tr>
+          <td><input value="${escapeAttr(v.name || '')}" placeholder="Name" onchange="data.volunteerInterest[${i}].name=this.value;saveData(true);renderVolunteerDirectory();"></td>
+          <td>
+            <input value="${escapeAttr(phoneValue)}" placeholder="Phone" onchange="data.volunteerInterest[${i}].phone=this.value;data.volunteerInterest[${i}].contact=[this.value,data.volunteerInterest[${i}].email||''].filter(Boolean).join(' | ');saveData(true)">
+            <input style="margin-top:6px" value="${escapeAttr(emailValue)}" placeholder="Email" onchange="data.volunteerInterest[${i}].email=this.value;data.volunteerInterest[${i}].contact=[data.volunteerInterest[${i}].phone||'',this.value].filter(Boolean).join(' | ');saveData(true)">
+            <input style="margin-top:6px" value="${escapeAttr(v.lastContact || '')}" placeholder="Last contact" onchange="data.volunteerInterest[${i}].lastContact=this.value;saveData(true)">
+          </td>
+          <td>
+            <input value="${escapeAttr(v.commitment || '')}" placeholder="Commitment" onchange="data.volunteerInterest[${i}].commitment=this.value;saveData(true)">
+            <textarea style="margin-top:6px;min-height:62px" placeholder="Notes" onchange="data.volunteerInterest[${i}].notes=this.value;saveData(true)">${escapeHtml(v.notes || '')}</textarea>
+            <label style="margin-top:6px"><input style="width:auto" type="checkbox" ${String(v.followup || '').toLowerCase().startsWith('y') ? 'checked' : ''} onchange="data.volunteerInterest[${i}].followup=this.checked?'Yes':'';saveData(true)"> Follow up needed</label>
+          </td>
+          <td><select onchange="data.volunteerInterest[${i}].status=this.value;saveData(true);renderVolunteerDirectory();">${statusOptions}</select></td>
+          <td>${DAYS.map(day => `<label style="display:block"><input style="width:auto" type="checkbox" ${v.days?.includes(day)?'checked':''} onchange="toggleVolunteerDay(${i},'${day}',this.checked)"> ${day}</label>`).join('')}</td>
+          <td>
+            <select onchange="data.volunteerInterest[${i}].assignmentType=this.value;data.volunteerInterest[${i}].assignmentId='';saveAndRender(false)"><option value="station" ${v.assignmentType!=='group'?'selected':''}>Station</option><option value="group" ${v.assignmentType==='group'?'selected':''}>Group</option></select>
+            <select style="margin-top:6px" onchange="data.volunteerInterest[${i}].assignmentId=this.value;saveData(true)">${targetOptions}</select>
+            <select style="margin-top:6px" onchange="data.volunteerInterest[${i}].role=this.value;saveData(true)">${roleOptions}</select>
+          </td>
+          <td class="row-actions"><button class="mini-btn" onclick="commitVolunteerInterest(${i})">Commit</button><button class="mini-btn" onclick="removeVolunteerInterest(${i})">Remove</button></td>
+        </tr>`;
       }).join('') || '<tr><td colspan="7">No volunteers yet. Upload a CSV or add a person.</td></tr>';
     }
     function renderVolunteerDirectory() {
