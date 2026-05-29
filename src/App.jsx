@@ -2,11 +2,740 @@ import { useMemo, useState } from "react";
 import { useDashboardAutosave } from "./useDashboardAutosave";
 
 const defaultDashboardData = {
-  registrations: [],
-  volunteers: [],
-  rooms: [],
-  schedule: [],
-  planningNotes: "",
+  "registrations": [
+    {
+      "id": "kid-eduardagasiev-",
+      "childName": "Eduard Agasiev",
+      "age": "",
+      "group": "Needs Review",
+      "registered": true,
+      "notes": "Family: Agasiev | Phone: (720) 280-8358"
+    },
+    {
+      "id": "kid-paulinaagasieva-",
+      "childName": "Paulina Agasieva",
+      "age": "",
+      "group": "Needs Review",
+      "registered": true,
+      "notes": "Family: Agasieva | Phone: (720) 280-8358"
+    },
+    {
+      "id": "kid-asheraltonen-1993-12-19",
+      "childName": "Asher Altonen",
+      "age": "11",
+      "group": "Tigers",
+      "registered": true,
+      "notes": "Family: Altonen | Phone: (719) 351-5358"
+    },
+    {
+      "id": "kid-milaaltonen-2018-06-08",
+      "childName": "Mila Altonen",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Altonen Household | Phone: +1 9315358"
+    },
+    {
+      "id": "kid-rioaltonen-2020-09-19",
+      "childName": "Rio Altonen",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Altonen Household | Phone: (719) 351-5358"
+    },
+    {
+      "id": "kid-allyanaanderson-2016-01-04",
+      "childName": "Allyana Anderson",
+      "age": "10",
+      "group": "Jaguars",
+      "registered": true,
+      "notes": "Family: Anderson | Phone: (720) 331-1421 | Email: allyana1416@gmail.com"
+    },
+    {
+      "id": "kid-brooklynchirita-2021-02-22",
+      "childName": "Brooklyn Chirita",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Chirita Household | Phone: (720) 438-0912 | Email: Jcchirita@gmail.com"
+    },
+    {
+      "id": "kid-delaneychirita-2022-08-20",
+      "childName": "Delaney Chirita",
+      "age": "3",
+      "group": "Tree Frogs",
+      "registered": true,
+      "notes": "Family: Chirita Household | Phone: (720) 438-0912 | Email: Jcchirita@gmail.com"
+    },
+    {
+      "id": "kid-noahchirita-2017-12-13",
+      "childName": "Noah Chirita",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Chirita Household | Phone: (720) 438-0912 | Email: Jcchirita@gmail.com"
+    },
+    {
+      "id": "kid-paytonchirita-2016-08-24",
+      "childName": "Payton Chirita",
+      "age": "9",
+      "group": "Sloths",
+      "registered": true,
+      "notes": "Family: Chirita Household | Phone: (720) 492-5453 | Email: jcchirita@gmail.com"
+    },
+    {
+      "id": "kid-reaganchirita-2019-06-22",
+      "childName": "Reagan Chirita",
+      "age": "6",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Chirita Household | Phone: (720) 438-0912 | Email: Jcchirita@gmail.com"
+    },
+    {
+      "id": "kid-eirenediermann-2019-11-16",
+      "childName": "Eirene Diermann",
+      "age": "6",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Diermann Household | Phone: (704) 909-8656"
+    },
+    {
+      "id": "kid-margotdiermann-2021-10-02",
+      "childName": "Margot Diermann",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Diermann Household | Phone: (704) 909-8656"
+    },
+    {
+      "id": "kid-ashereigenberg-2019-03-12",
+      "childName": "Asher Eigenberg",
+      "age": "7",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Eigenberg Household | Phone: (303) 518-2065 | Email: Savannah.Eigenberg@gmail.com"
+    },
+    {
+      "id": "kid-kindleeigenberg-2016-09-09",
+      "childName": "Kindle Eigenberg",
+      "age": "9",
+      "group": "Sloths",
+      "registered": true,
+      "notes": "Family: Eigenberg Household | Phone: (303) 518-2065 | Email: savannah.eigenberg@gmail.com"
+    },
+    {
+      "id": "kid-jonahescalante-2017-08-04",
+      "childName": "Jonah Escalante",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Escalante Household | Phone: (720) 312-7733 | Email: Mog111187@gmail.com"
+    },
+    {
+      "id": "kid-micahescalante-2020-08-09",
+      "childName": "Micah Escalante",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Escalante Household | Phone: 720312773"
+    },
+    {
+      "id": "kid-madelinegidenko-2019-05-06",
+      "childName": "Madeline Gidenko",
+      "age": "7",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Gidenko Household | Phone: (209) 450-5033"
+    },
+    {
+      "id": "kid-elliegrein-2018-04-09",
+      "childName": "Ellie Grein",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Grein Household | Phone: (303) 570-2443"
+    },
+    {
+      "id": "kid-nathangray-2020-09-03",
+      "childName": "Nathan Gray",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Grein Household | Phone: (303) 570-2443 | Email: Stacy.grein08@gmail.com"
+    },
+    {
+      "id": "kid-samuelgrein-2019-04-18",
+      "childName": "Samuel Grein",
+      "age": "7",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Grein Household | Phone: (303) 570-2443"
+    },
+    {
+      "id": "kid-annieherschberg-2021-11-02",
+      "childName": "Annie Herschberg",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Herschberg Household | Phone: (720) 352-7069 | Email: Natalieherschberg@gmail.com"
+    },
+    {
+      "id": "kid-hansherschberg-2018-08-21",
+      "childName": "Hans Herschberg",
+      "age": "7",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Herschberg Household | Phone: (720) 352-7069 | Email: Natalieherschberg@gmail.com"
+    },
+    {
+      "id": "kid-kennedyjones-2021-08-16",
+      "childName": "Kennedy Jones",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Jones | Phone: (858) 357-6017"
+    },
+    {
+      "id": "kid-benkim-2019-11-26",
+      "childName": "Ben Kim",
+      "age": "6",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Kim Household | Phone: (303) 994-4881 | Email: Mcmathmelissa@gmail.com"
+    },
+    {
+      "id": "kid-zionkim-2021-11-21",
+      "childName": "Zion Kim",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Kim Household | Phone: (303) 994-4881 | Email: Mcmathmelissa@gmail.com"
+    },
+    {
+      "id": "kid-gabriellugo-2016-04-21",
+      "childName": "Gabriel Lugo",
+      "age": "10",
+      "group": "Jaguars",
+      "registered": true,
+      "notes": "Family: Lugo Household | Phone: (504) 655-4249 | Email: cathylugo1219@gmail.com"
+    },
+    {
+      "id": "kid-oliverlugo-2018-11-30",
+      "childName": "Oliver Lugo",
+      "age": "7",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Lugo Household | Phone: (504) 655-4249 | Email: cathylugo1219@gmail.com"
+    },
+    {
+      "id": "kid-kenleynicholson-2015-08-28",
+      "childName": "Kenley Nicholson",
+      "age": "10",
+      "group": "Jaguars",
+      "registered": true,
+      "notes": "Family: Nicholson Household | Phone: (303) 478-7803 | Email: brookann@comcast.net"
+    },
+    {
+      "id": "kid-mylesnicholson-2020-05-16",
+      "childName": "Myles Nicholson",
+      "age": "6",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Nicholson Household | Phone: (303) 478-7803 | Email: brookann@comcast.net"
+    },
+    {
+      "id": "kid-zionnicholson-2017-01-28",
+      "childName": "Zion Nicholson",
+      "age": "9",
+      "group": "Sloths",
+      "registered": true,
+      "notes": "Family: Nicholson Household | Phone: (303) 478-7803 | Email: brookann@comcast.net"
+    },
+    {
+      "id": "kid-rosemarynolan-2022-06-30",
+      "childName": "Rosemary Nolan",
+      "age": "3",
+      "group": "Tree Frogs",
+      "registered": true,
+      "notes": "Family: Nolan Household | Phone: (267) 887-8025"
+    },
+    {
+      "id": "kid-twilanolan-2020-02-08",
+      "childName": "Twila Nolan",
+      "age": "6",
+      "group": "Monkeys",
+      "registered": true,
+      "notes": "Family: Nolan Household | Phone: (267) 887-8025"
+    },
+    {
+      "id": "kid-beniparsons-2021-11-04",
+      "childName": "Beni Parsons",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Parsons Household | Phone: (303) 565-6020 | Email: bakkenjessica@gmail.com"
+    },
+    {
+      "id": "kid-madelinephillips-2018-05-03",
+      "childName": "Madeline Phillips",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Phillips Household | Phone: (574) 218-5984 | Email: phillipsekendra@gmail.com"
+    },
+    {
+      "id": "kid-theaphillips-2022-05-20",
+      "childName": "Thea Phillips",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Phillips Household | Phone: (574) 218-5984 | Email: Phillipsekendra@gmail.com"
+    },
+    {
+      "id": "kid-wesleyphillips-2020-07-19",
+      "childName": "Wesley Phillips",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Phillips Household | Phone: (574) 218-5984 | Email: Phillipsekendra@gmail.com"
+    },
+    {
+      "id": "kid-milanapidkalyuk-",
+      "childName": "Milana Pidkalyuk",
+      "age": "",
+      "group": "Needs Review",
+      "registered": true,
+      "notes": "Family: Pidkalyuk | Phone: (720) 280-8358"
+    },
+    {
+      "id": "kid-annikarhodes-2016-11-29",
+      "childName": "Annika Rhodes",
+      "age": "9",
+      "group": "Sloths",
+      "registered": true,
+      "notes": "Family: Rhodes | Phone: (720) 299-9298 | Email: Lpidkalyuk@gmail.com"
+    },
+    {
+      "id": "kid-elirhodes-2018-02-27",
+      "childName": "Eli Rhodes",
+      "age": "8",
+      "group": "Parrots",
+      "registered": true,
+      "notes": "Family: Rhodes | Phone: (720) 299-9298 | Email: Lpidkalyuk@gmail.com"
+    },
+    {
+      "id": "kid-isaacrhodes-2021-10-25",
+      "childName": "Isaac Rhodes",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Rhodes | Phone: (720) 299-9298 | Email: Lpidkalyuk@gmail.com"
+    },
+    {
+      "id": "kid-leahrhodes-2014-11-09",
+      "childName": "Leah Rhodes",
+      "age": "11",
+      "group": "Tigers",
+      "registered": true,
+      "notes": "Family: Rhodes | Phone: (720) 299-9298"
+    },
+    {
+      "id": "kid-everlyschreiber-2020-09-18",
+      "childName": "Everly Schreiber",
+      "age": "5",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Schreiber Household | Phone: (801) 428-9165"
+    },
+    {
+      "id": "kid-zionshabanyan-2021-10-17",
+      "childName": "zion shabanyan",
+      "age": "4",
+      "group": "Toucans",
+      "registered": true,
+      "notes": "Family: Shabanyan Household | Phone: (720) 421-8083"
+    }
+  ],
+  "volunteers": [
+    {
+      "id": "interest-alexis-s",
+      "name": "Alexis S",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-ana-julia-dasilva",
+      "name": "Ana Julia DaSilva",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-ben-lee",
+      "name": "Ben Lee",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-brandon-cheun",
+      "name": "Brandon Cheun",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-brook-nicholson",
+      "name": "Brook Nicholson",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-chloe-guttormson",
+      "name": "Chloe Guttormson",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-christine-hodges",
+      "name": "Christine Hodges",
+      "role": "Lead",
+      "day": "Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-danielle-carr",
+      "name": "Danielle Carr",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-elisabeth-martin",
+      "name": "Elisabeth Martin",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-ellie-clifford",
+      "name": "Ellie Clifford",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-eva-kim",
+      "name": "Eva Kim",
+      "role": "Support",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-evelyn-odnoralof",
+      "name": "Evelyn Odnoralof",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-evelyn-odnoralov",
+      "name": "Evelyn Odnoralov",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-gabriella-burgos",
+      "name": "Gabriella Burgos",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-gabriella-kish",
+      "name": "Gabriella Kish",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-glory-clark",
+      "name": "Glory Clark",
+      "role": "Support",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-grace-glukhoman",
+      "name": "Grace Glukhoman",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-grace-kim",
+      "name": "Grace Kim",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-hadassah-russell",
+      "name": "Hadassah Russell",
+      "role": "Support",
+      "day": "Monday, Tuesday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-haylie-schreiber",
+      "name": "Haylie Schreiber",
+      "role": "Support",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-ian-andrews",
+      "name": "Ian Andrews",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-isaac-liptac",
+      "name": "Isaac Liptac",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-isaisas-medina",
+      "name": "Isaisas Medina",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-jolayne-elliot",
+      "name": "JoLayne Elliot",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-katherine-lugo",
+      "name": "Katherine Lugo",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-kendra-phillips",
+      "name": "Kendra Phillips",
+      "role": "Support",
+      "day": "Monday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-kes-hoffman",
+      "name": "Kes Hoffman",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-kimbery-carr",
+      "name": "Kimbery Carr",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-kyle-hoffman",
+      "name": "Kyle Hoffman",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-melissa-kim",
+      "name": "Melissa Kim",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-mikaila-slayton",
+      "name": "Mikaila Slayton",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-mya-russell",
+      "name": "Mya Russell",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-mya-van-nortwick",
+      "name": "Mya Van Nortwick",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-nick-manning",
+      "name": "Nick Manning",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-perri-funk",
+      "name": "Perri Funk",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-raymond-phillips",
+      "name": "Raymond Phillips",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-rick-mclaughin",
+      "name": "Rick Mclaughin",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-robin-mclaughin",
+      "name": "Robin Mclaughin",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-sarah-liptac",
+      "name": "Sarah Liptac",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-savannah-eigenberg",
+      "name": "Savannah Eigenberg",
+      "role": "Lead",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-scarlet-kim",
+      "name": "Scarlet Kim",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    },
+    {
+      "id": "interest-selah-robles",
+      "name": "Selah Robles",
+      "role": "Lead",
+      "day": "Tuesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-stacy-grein",
+      "name": "Stacy Grein",
+      "role": "Support",
+      "day": "Monday, Tuesday, Wednesday, Thursday",
+      "confirmed": true
+    },
+    {
+      "id": "interest-talia-jones",
+      "name": "Talia Jones",
+      "role": "Support",
+      "day": "",
+      "confirmed": false
+    }
+  ],
+  "rooms": [
+    {
+      "id": "sanctuary",
+      "name": "Sanctuary",
+      "capacity": "",
+      "notes": "Transform into a rainforest environment. Add a large visual waterfall installation along the side of the stage. Move all chairs to the back of the room for the week so there is open space for worship, dance, movement, and group engagement. Add clear age-group and animal-color signage so every group knows its morning and pickup meeting spot."
+    },
+    {
+      "id": "mpr-room",
+      "name": "MPR Room",
+      "capacity": "",
+      "notes": "Hallway entrance should feel like passing beneath flowing water using hanging tinsel foil curtains. Cover walls in blue paper. Decorate with sea animals, coral reef elements, rocks, fishing nets, and lesson-connected props. Goal: calm, captivating room where kids dive deeper into who God is and how His Word applies to their lives."
+    },
+    {
+      "id": "kitchen-snack-shack",
+      "name": "Kitchen + Outside Kitchen Area",
+      "capacity": "",
+      "notes": "Use the kitchen and outdoor area directly outside for snacks and lunch. Keep decor simple: paper-lined walls with vines, flowers, and leaves. Add a covering above the kitchen windows so it feels like a tropical hut or snack stand."
+    },
+    {
+      "id": "pre-k-cave-room",
+      "name": "Pre-K Room",
+      "capacity": "",
+      "notes": "Cover walls fully in gray paper to mimic a cave interior. Add rock and boulder elements made from cardboard and paper. Use this room for a quieter station, younger kid reset space, or themed activity rotation."
+    },
+    {
+      "id": "tots-room-verse-vines",
+      "name": "Tots Room",
+      "capacity": "",
+      "notes": "Because the room already has animal wall paintings, keep added decor minimal. Add select wall or ceiling materials if needed. Use hanging vines, greenery, or ceiling elements for the Verse Vines theme."
+    },
+    {
+      "id": "nursery-overflow",
+      "name": "Nursery Room",
+      "capacity": "",
+      "notes": "Use as the 3-year-old hangout, potty-trained preschool support room, nap/reset room, or overflow space if group sizes require it."
+    },
+    {
+      "id": "elementary-creation-station",
+      "name": "Elementary Area",
+      "capacity": "",
+      "notes": "Cover all walls except cabinets and doors with paper. Decorate with vines, flowers, leaves, and optional animal cutouts. Wrap the two pillars in brown paper to look like trees, with chain-linked greenery extending upward as canopy. Arrange tables and chairs in rows for structured craft work."
+    },
+    {
+      "id": "outside-games",
+      "name": "Outside Area",
+      "capacity": "",
+      "notes": "No major decorations needed outside. Keep all games and props on theme. Use relays, team challenges, water games if weather allows, and free-choice activities for Day 4."
+    },
+    {
+      "id": "briefing-room",
+      "name": "Briefing Room",
+      "capacity": "",
+      "notes": "Use for volunteer check-in, coordinator briefing, extra supplies, prep materials, or floater staging. Can also serve as a quiet problem-solving room during transitions."
+    },
+    {
+      "id": "face-paint-room",
+      "name": "Face Paint Room",
+      "capacity": "",
+      "notes": "Use washable, allergy-aware supplies, mirrors, wipes, water, and a simple design board. Keep line control clear. Offer a no-face-paint alternative."
+    },
+    {
+      "id": "bbq-fellowship",
+      "name": "BBQ / Fellowship Area",
+      "capacity": "",
+      "notes": "Use for setup, serving, seating, cleanup, and family welcome. Include allergy labels, trash cans, drink station, seating, and supervised games nearby."
+    }
+  ],
+  "schedule": [],
+  "planningNotes": "Seeded from latest VBS dashboard data on 2026-05-28. Registered kids: 44. Volunteer contacts: 44."
 };
 
 function makeId() {
