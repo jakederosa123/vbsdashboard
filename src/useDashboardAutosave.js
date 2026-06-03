@@ -17,6 +17,10 @@ function normalizeDashboardData(data, fallback) {
       : fallback.volunteers || [],
     rooms: Array.isArray(data?.rooms) ? data.rooms : fallback.rooms || [],
     schedule: Array.isArray(data?.schedule) ? data.schedule : fallback.schedule || [],
+    groups: Array.isArray(data?.groups) ? data.groups : fallback.groups || [],
+    stations: Array.isArray(data?.stations) ? data.stations : fallback.stations || [],
+    dailyShape: Array.isArray(data?.dailyShape) ? data.dailyShape : fallback.dailyShape || [],
+    weekFlows: Array.isArray(data?.weekFlows) ? data.weekFlows : fallback.weekFlows || [],
     planningNotes:
       typeof data?.planningNotes === "string"
         ? data.planningNotes

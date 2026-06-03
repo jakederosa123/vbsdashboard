@@ -35,6 +35,10 @@ function cleanForFirestore(data) {
     volunteers: Array.isArray(data?.volunteers) ? data.volunteers : [],
     rooms: Array.isArray(data?.rooms) ? data.rooms : [],
     schedule: Array.isArray(data?.schedule) ? data.schedule : [],
+    groups: Array.isArray(data?.groups) ? data.groups : [],
+    stations: Array.isArray(data?.stations) ? data.stations : [],
+    dailyShape: Array.isArray(data?.dailyShape) ? data.dailyShape : [],
+    weekFlows: Array.isArray(data?.weekFlows) ? data.weekFlows : [],
     planningNotes: typeof data?.planningNotes === "string" ? data.planningNotes : "",
   };
 }
@@ -59,6 +63,10 @@ export async function clearDashboardData() {
     volunteers: [],
     rooms: [],
     schedule: [],
+    groups: [],
+    stations: [],
+    dailyShape: [],
+    weekFlows: [],
     planningNotes: "",
     updatedAt: serverTimestamp(),
     clearedAt: serverTimestamp(),
