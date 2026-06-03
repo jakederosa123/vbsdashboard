@@ -1,2 +1,0 @@
-Do not commit node_modules to GitHub. Netlify will install dependencies from package.json and package-lock.json during deploy.
-Locally, run npm install to create node_modules on your computer.
